@@ -12,13 +12,25 @@ Tracker is real-time collaborative infrastructure event tracking system.
 
 ## Setup
 
-1. Install dependencies:
+1. Setup Yorkie bcakend if you are not using Yorkie SaaS:
+
+```bash
+docker-compose -f ./docker/docker-compose.yml up -d
+```
+
+2. Setup Tracker backend:
+
+```bash
+go run ./backend/main.go
+```
+
+3. Install Tracker frontend dependencies:
  
 ```bash
 npm install
 ```
 
-2. Start the development server:
+4. Start the Tracker frontend development server:
 
 ```bash
 npm run dev
@@ -30,4 +42,4 @@ npm run dev
 - [ ] Playbook creation support
 - [ ] Markdown message Support
 - [ ] Image embedding support
-- [ ] ...
+- [ ] Issue to Playbook integration using LLM summary

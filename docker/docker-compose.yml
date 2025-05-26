@@ -1,0 +1,63 @@
+version: "3.8"
+
+services:
+    yorkie:
+        image: "yorkieteam/yorkie:0.5.7"
+        command: ["server", "--enable-pprof"]
+        restart: always
+        ports:
+            - "8080:8080"
+            - "8081:8081"
+
+    # tracker-intelligence:
+    #     image: "ollama/ollama:latest"
+    #     restart: always
+    #     ports:
+    #         - "11434:11434"
+
+    mongo:
+        build:
+            context: ./mongodb_replica
+            args:
+                MONGO_VERSION: 4
+        environment:
+            MONGO_REPLICA_HOST: 127.0.0.1
+            MONGO_REPLICA_PORT: 27017
+            MONGO_INITDB_DATABASE: "tracker"
+            MONGO_COMMAND: "mongo"
+        ports:
+            - "27017:27017"
+        restart: unless-stopped
+        healthcheck:
+            test:
+                ["CMD", "mongo", "admin", "--port", "27017", "--eval", "db.adminCommand('ping').ok"]
+            interval: 5s
+            timeout: 2s
+            retries: 20
+
+    # minio:
+    #     image: minio/minio
+    #     ports:
+    #         - "9000:9000"
+    #         - "9001:9001"
+    #     environment:
+    #         MINIO_ROOT_USER: "minioadmin"
+    #         MINIO_ROOT_PASSWORD: "minioadmin"
+    #     command: server --console-address ":9001" --address ":9000" /data
+    #     healthcheck:
+    #         test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+    #         interval: 30s
+    #         timeout: 20s
+    #         retries: 3
+
+    # init_minio:
+    #     image: minio/mc
+    #     depends_on:
+    #         minio:
+    #             condition: service_healthy
+    #     entrypoint: >
+    #         /bin/sh -c "
+    #         mc alias set codepair http://minio:9000 minioadmin minioadmin --api S3v4;
+    #         mc mb codepair/default-storage;
+    #         exit 0;
+    #         "
