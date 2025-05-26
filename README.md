@@ -38,8 +38,13 @@ npm run dev
 
 ## Roadmap
 
-- [x] Backend Support
-- [ ] Playbook creation support
-- [ ] Markdown message Support
-- [ ] Image embedding support
-- [ ] Issue to Playbook integration using LLM summary
+- [x] Real-time collaborative event feed (Yorkie integration)
+- [x] Backend API for issue management
+- [ ] Playbook creation and editing UI
+- [ ] Markdown support for event messages (TBD)
+- [ ] Image embedding in event feed (MinIO/S3 integration)
+- [ ] LLM-powered summary: Link issues to playbooks (Ollama integration)
+- [ ] GitHub OAuth authentication and authorization
+- [ ] Health check for infrastructure events
+- [ ] Notification and paging system
+- [ ] Automatic issue creation from infrastructure events (webhooks/integrations)
