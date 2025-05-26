@@ -9,5 +9,5 @@ export type Issue = {
   id: string;
   name: string;
   createdAt: number;
-  status: "ongoing" | "resolved";
+  status: number;
 };

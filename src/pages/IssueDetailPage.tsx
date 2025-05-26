@@ -1,7 +1,8 @@
+import { useEffect, useState, useMemo } from "react";
+import { useParams } from "react-router-dom";
+import { Issue, EventComment } from "../types/types";
 import { IssueFeed } from "../components/IssueFeed";
 import { useDocument } from "@yorkie-js/react";
-import { useEffect, useState, useMemo } from "react";
-import { Issue, EventComment } from "../types/types";
 
 // Example playbooks (could be loaded from API or static file)
 const PLAYBOOKS = [
@@ -29,7 +30,10 @@ const PLAYBOOKS = [
   },
 ];
 
+const API_URL = import.meta.env.VITE_API_URL 
+
 export function IssueDetailPage() {
+  const { issueId } = useParams<{ issueId: string }>();
   const { root, update } = useDocument<{ events: EventComment[]; status?: "ongoing" | "resolved" }>();
   const [issueInfo, setIssueInfo] = useState<Issue | null>(null);
 
@@ -37,18 +41,13 @@ export function IssueDetailPage() {
   const [selectedPlaybookId, setSelectedPlaybookId] = useState<string | null>(null);
   const [checkedSteps, setCheckedSteps] = useState<{ [stepIdx: number]: boolean }>({});
 
-  // Get issue id from URL
-  const issueId = useMemo(() => window.location.pathname.split("/").pop(), []);
-
-  // Only fetch issue info from localStorage once (on mount or issueId change)
+  // Fetch issue info from backend when issueId changes
   useEffect(() => {
-    const issuesRaw = localStorage.getItem("tracker_issues");
-    let issue: Issue | undefined;
-    if (issuesRaw && issueId) {
-      const issues = JSON.parse(issuesRaw) as Issue[];
-      issue = issues.find(i => i.id === issueId);
-    }
-    setIssueInfo(issue ?? null);
+    if (!issueId) return;
+    fetch(`${API_URL}/api/issues/${issueId}`)
+      .then(res => res.json())
+      .then(data => setIssueInfo(data))
+      .catch(() => setIssueInfo(null));
   }, [issueId]);
 
   // Calculate status based on Yorkie doc (prefer Yorkie, fallback to local issueInfo)
@@ -57,13 +56,23 @@ export function IssueDetailPage() {
     if (root.events && root.events.some(ev => ev.text.toLowerCase().includes("resolved"))) {
       return "resolved";
     }
-    return issueInfo?.status || "ongoing";
+    // If backend status is 1, treat as ongoing; if 0, resolved
+    if (typeof issueInfo?.status === "number") {
+      return issueInfo.status === 1 ? "ongoing" : "resolved";
+    }
+    return "ongoing";
   }, [root.status, root.events, issueInfo?.status]);
 
   // Status change handler (updates Yorkie doc)
   const handleStatusChange = (newStatus: "ongoing" | "resolved") => {
     update(root => {
       root.status = newStatus;
+    });
+
+    fetch(`${API_URL}/api/issues/${issueId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus === "ongoing" ? 1 : 0 }),
     });
   };
 
