@@ -41,7 +41,7 @@ function AppLayout() {
           <Link to="/playbooks" className="text-blue-700 font-semibold hover:underline">
             Playbooks
           </Link>
-          <Link to="/health" className="text-blue-700 font-semibold hover:underline">
+          <Link to="/healths" className="text-blue-700 font-semibold hover:underline">
             Health
           </Link>
         </div>
@@ -61,7 +61,7 @@ function App() {
           <Route path="/issues/:issueId" element={<IssueDetailWithProvider />} />
           <Route path="/playbooks" element={<PlaybookListPage />} />
           <Route path="/playbooks/:playbookId" element={<PlaybookDetailPage />} />
-          <Route path="/health" element={<HealthListPage />} />
+          <Route path="/healths" element={<HealthListPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

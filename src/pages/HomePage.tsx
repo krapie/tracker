@@ -22,6 +22,12 @@ export function HomePage() {
         >
           Go to Playbooks
         </Link>
+        <Link
+          to="/healths"
+          className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded font-semibold shadow"
+        >
+          Go to Healths
+        </Link>
       </div>
     </div>
   );

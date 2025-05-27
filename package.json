@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@types/react-router-dom": "^5.3.3",
+    "@uiw/react-md-editor": "^4.0.7",
     "@yorkie-js/react": "^0.6.12",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

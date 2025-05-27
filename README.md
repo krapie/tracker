@@ -44,7 +44,7 @@ npm run dev
 - [x] Health check on infrastructure
 - [x] Notification and paging system
 - [x] Automatic issue creation from infrastructure events (webhooks/integrations)
-- [ ] Markdown support for event messages (TBD)
+- [x] Markdown support for event messages (TBD)
 - [ ] Image embedding in event feed (MinIO/S3 integration)
 - [ ] LLM-powered summary: Link issues to playbooks (Ollama integration)
 - [ ] GitHub OAuth authentication and authorization
