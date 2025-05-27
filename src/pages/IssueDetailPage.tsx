@@ -1,36 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { Issue, EventComment } from "../types/types";
+import { Issue, EventComment, Playbook } from "../types/types";
 import { IssueFeed } from "../components/IssueFeed";
 import { useDocument } from "@yorkie-js/react";
 
-// Example playbooks (could be loaded from API or static file)
-const PLAYBOOKS = [
-  {
-    id: "deploy",
-    name: "Deployment Checklist",
-    steps: [
-      "Check server health",
-      "Backup database",
-      "Deploy new version",
-      "Verify deployment",
-      "Notify stakeholders",
-    ],
-  },
-  {
-    id: "incident",
-    name: "Incident Response",
-    steps: [
-      "Acknowledge incident",
-      "Assess impact",
-      "Mitigate issue",
-      "Communicate with team",
-      "Post-mortem analysis",
-    ],
-  },
-];
-
-const API_URL = import.meta.env.VITE_API_URL 
+const API_URL = import.meta.env.VITE_API_URL;
 
 export function IssueDetailPage() {
   const { issueId } = useParams<{ issueId: string }>();
@@ -38,6 +12,7 @@ export function IssueDetailPage() {
   const [issueInfo, setIssueInfo] = useState<Issue | null>(null);
 
   // Playbook state
+  const [playbooks, setPlaybooks] = useState<Playbook[]>([]);
   const [selectedPlaybookId, setSelectedPlaybookId] = useState<string | null>(null);
   const [checkedSteps, setCheckedSteps] = useState<{ [stepIdx: number]: boolean }>({});
 
@@ -50,20 +25,27 @@ export function IssueDetailPage() {
       .catch(() => setIssueInfo(null));
   }, [issueId]);
 
+  // Fetch playbooks from backend
+  useEffect(() => {
+    fetch(`${API_URL}/api/playbooks/`)
+      .then(res => res.json())
+      .then(data => setPlaybooks(Array.isArray(data) ? data : []))
+      .catch(() => setPlaybooks([]));
+  }, []);
+
   // Calculate status based on Yorkie doc (prefer Yorkie, fallback to local issueInfo)
   const status: "ongoing" | "resolved" = useMemo(() => {
     if (root.status) return root.status;
     if (root.events && root.events.some(ev => ev.text.toLowerCase().includes("resolved"))) {
       return "resolved";
     }
-    // If backend status is 1, treat as ongoing; if 0, resolved
     if (typeof issueInfo?.status === "number") {
       return issueInfo.status === 1 ? "ongoing" : "resolved";
     }
     return "ongoing";
   }, [root.status, root.events, issueInfo?.status]);
 
-  // Status change handler (updates Yorkie doc)
+  // Status change handler (updates Yorkie doc and backend)
   const handleStatusChange = (newStatus: "ongoing" | "resolved") => {
     update(root => {
       root.status = newStatus;
@@ -99,7 +81,7 @@ export function IssueDetailPage() {
   };
 
   // Get selected playbook object
-  const selectedPlaybook = PLAYBOOKS.find(pb => pb.id === selectedPlaybookId);
+  const selectedPlaybook = playbooks.find(pb => pb.id === selectedPlaybookId);
 
   return (
     <div className="flex gap-8 m-6">
@@ -175,7 +157,7 @@ export function IssueDetailPage() {
               onChange={e => setSelectedPlaybookId(e.target.value || null)}
             >
               <option value="">Select playbook…</option>
-              {PLAYBOOKS.map(pb => (
+              {playbooks.map(pb => (
                 <option key={pb.id} value={pb.id}>
                   {pb.name}
                 </option>
@@ -192,7 +174,7 @@ export function IssueDetailPage() {
                     onChange={() => handleCheckStep(idx)}
                   />
                   <span className={`flex-1 ${checkedSteps[idx] ? "line-through text-gray-400" : ""} max-md:text-xs`}>
-                    {step}
+                    {step.content}
                   </span>
                 </li>
               ))}

@@ -40,11 +40,11 @@ npm run dev
 
 - [x] Real-time collaborative event feed (Yorkie integration)
 - [x] Backend API for issue management
-- [ ] Playbook creation and editing UI
+- [x] Playbook creation and editing UI
+- [ ] Health check on infrastructure
+- [ ] Notification and paging system
 - [ ] Markdown support for event messages (TBD)
 - [ ] Image embedding in event feed (MinIO/S3 integration)
 - [ ] LLM-powered summary: Link issues to playbooks (Ollama integration)
 - [ ] GitHub OAuth authentication and authorization
-- [ ] Health check for infrastructure events
-- [ ] Notification and paging system
 - [ ] Automatic issue creation from infrastructure events (webhooks/integrations)

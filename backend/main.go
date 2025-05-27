@@ -21,6 +21,7 @@ func main() {
 	}))
 
 	routes.RegisterIssueRoutes(r)
+	routes.RegisterPlaybookRoutes(r)
 
 	port := os.Getenv("PORT")
 	if port == "" {

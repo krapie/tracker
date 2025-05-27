@@ -40,10 +40,6 @@ export function IssuesListPage() {
 
   return (
     <div className="max-w-2xl mx-auto p-8">
-      <h1 className="text-4xl font-extrabold mb-2 text-blue-700 flex items-center gap-2">
-        <span>🚦</span> Tracker
-      </h1>
-      <p className="mb-6 text-gray-600">Track, collaborate, and resolve infrastructure issues in real time.</p>
       <div className="mb-6 flex gap-2">
         <input
           className="border px-3 py-2 flex-1 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
