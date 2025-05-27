@@ -72,7 +72,7 @@ export function IssuesListPage() {
               >
                 <button
                   className="text-blue-700 underline font-medium text-left flex-1"
-                  onClick={() => navigate(`/issue/${issue.id}`)}
+                  onClick={() => navigate(`/issues/${issue.id}`)}
                 >
                   {issue.name}
                 </button>
@@ -103,7 +103,7 @@ export function IssuesListPage() {
               >
                 <button
                   className="text-blue-700 underline font-medium text-left flex-1"
-                  onClick={() => navigate(`/issue/${issue.id}`)}
+                  onClick={() => navigate(`/issues/${issue.id}`)}
                 >
                   {issue.name}
                 </button>

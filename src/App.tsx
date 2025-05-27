@@ -5,6 +5,7 @@ import { YorkieProvider, DocumentProvider } from "@yorkie-js/react";
 import { PlaybookListPage } from "./pages/PlaybookListPage";
 import { PlaybookDetailPage } from "./pages/PlaybookDetailPage";
 import { HomePage } from "./pages/HomePage";
+import { HealthListPage } from "./pages/HealthListPage";
 import "./index.css";
 
 const YORKIE_API_KEY = import.meta.env.VITE_YORKIE_API_KEY as string;
@@ -40,6 +41,9 @@ function AppLayout() {
           <Link to="/playbooks" className="text-blue-700 font-semibold hover:underline">
             Playbooks
           </Link>
+          <Link to="/health" className="text-blue-700 font-semibold hover:underline">
+            Health
+          </Link>
         </div>
       </nav>
       <Outlet />
@@ -54,9 +58,10 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/issues" element={<IssuesListPage />} />
-          <Route path="/issue/:issueId" element={<IssueDetailWithProvider />} />
+          <Route path="/issues/:issueId" element={<IssueDetailWithProvider />} />
           <Route path="/playbooks" element={<PlaybookListPage />} />
           <Route path="/playbooks/:playbookId" element={<PlaybookDetailPage />} />
+          <Route path="/health" element={<HealthListPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
