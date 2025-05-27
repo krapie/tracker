@@ -5,10 +5,65 @@ import MDEditor from "@uiw/react-md-editor";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 /**
  * Uses @uiw/react-md-editor for markdown editing and preview.
- * See docs/react-markdown-editor.md for usage and customization details.
+ * See docs/react-markdown-editor.md and docs/react-md-editor-image.md for usage and customization details.
  */
+
+async function uploadImageToBackend(file: File): Promise<string | null> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch(`${API_URL}/api/images/upload`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.url as string;
+}
+
+function insertImageMarkdown(url: string) {
+  const textarea = document.querySelector("textarea");
+  if (!textarea) return null;
+  let sentence = textarea.value;
+  const len = sentence.length;
+  const pos = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const front = sentence.slice(0, pos);
+  const back = sentence.slice(pos, len);
+  const insertString = `![](${url})`;
+  sentence = front + insertString + back;
+  textarea.value = sentence;
+  textarea.selectionEnd = end + insertString.length;
+  return sentence;
+}
+
+async function handleImagePasteOrDrop(
+  dataTransfer: DataTransfer,
+  setMarkdown: (value: string | undefined) => void
+) {
+  const files: File[] = [];
+  for (let i = 0; i < dataTransfer.items.length; i++) {
+    const file = dataTransfer.files.item(i);
+    if (file && file.type.startsWith("image/")) {
+      files.push(file);
+    }
+  }
+  await Promise.all(
+    files.map(async (file) => {
+      const url = await uploadImageToBackend(file);
+      if (url) {
+        const insertedMarkdown = insertImageMarkdown(url);
+        if (insertedMarkdown !== null) {
+          setMarkdown(insertedMarkdown);
+        }
+      }
+    })
+  );
+}
+
 export function IssueFeed() {
   const [author, setAuthor] = useState("");
   const [input, setInput] = useState<string | undefined>("");
@@ -78,10 +133,17 @@ export function IssueFeed() {
       <div className="mb-4">
         <MDEditor
           value={input}
-          height={180}
+          height={editingId ? 300 : 180}
           visibleDragbar={false}
           onChange={val => setInput(val || "")}
           data-color-mode="light"
+          onPaste={async (event) => {
+            await handleImagePasteOrDrop(event.clipboardData, setInput);
+          }}
+          onDrop={async (event) => {
+            event.preventDefault(); // Prevent default to stop image opening in new tab
+            await handleImagePasteOrDrop(event.dataTransfer, setInput);
+          }}
         />
         <button
           className="bg-green-600 text-white px-4 py-1 rounded mt-2"
@@ -120,10 +182,17 @@ export function IssueFeed() {
                   <div>
                     <MDEditor
                       value={editingText}
-                      height={120}
+                      height={300}
                       visibleDragbar={false}
                       onChange={val => setEditingText(val || "")}
                       data-color-mode="light"
+                      onPaste={async (event) => {
+                        await handleImagePasteOrDrop(event.clipboardData, val => setEditingText(val || ""));
+                      }}
+                      onDrop={async (event) => {
+                        event.preventDefault(); // Prevent default to stop image opening in new tab
+                        await handleImagePasteOrDrop(event.dataTransfer, val => setEditingText(val || ""));
+                      }}
                     />
                     <div className="mt-2 flex gap-2">
                       <button

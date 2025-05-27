@@ -18,19 +18,25 @@ Tracker is real-time collaborative infrastructure event tracking system.
 docker-compose -f ./docker/docker-compose.yml up -d
 ```
 
-2. Setup Tracker backend:
+2. Install Tracker backend dependencies:
+
+```bash
+go mod tidy
+```
+
+3. Then, run the Tracker backend:
 
 ```bash
 go run ./backend/main.go
 ```
 
-3. Install Tracker frontend dependencies:
+4. Install Tracker frontend dependencies:
  
 ```bash
 npm install
 ```
 
-4. Start the Tracker frontend development server:
+5. Start the Tracker frontend development server:
 
 ```bash
 npm run dev
@@ -45,6 +51,6 @@ npm run dev
 - [x] Notification and paging system
 - [x] Automatic issue creation from infrastructure events (webhooks/integrations)
 - [x] Markdown support for event messages (TBD)
-- [ ] Image embedding in event feed (MinIO/S3 integration)
+- [x] Image embedding in event feed (MinIO/S3 integration)
 - [ ] LLM-powered summary: Link issues to playbooks (Ollama integration)
 - [ ] GitHub OAuth authentication and authorization
