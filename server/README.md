@@ -1,4 +1,4 @@
-# Tracker Backend
+# Tracker Server
 
 ## Setup
 

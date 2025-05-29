@@ -12,4 +12,6 @@ func RegisterHealthRoutes(r *gin.Engine) {
 		health.GET("/status", handlers.ListHealthStatuses)
 		health.PUT("/endpoints/:id", handlers.UpdateHealthEndpoint)
 	}
+	// Add /healthz endpoint at root for probes
+	r.GET("/healthz", handlers.HealthzHandler)
 }

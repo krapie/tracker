@@ -18,16 +18,16 @@ Tracker is real-time collaborative infrastructure event tracking system.
 docker-compose -f ./docker/docker-compose.yml up -d
 ```
 
-2. Install Tracker backend dependencies:
+2. Install Tracker Server dependencies:
 
 ```bash
 go mod tidy
 ```
 
-3. Then, run the Tracker backend:
+3. Then, run the Tracker server:
 
 ```bash
-go run ./backend/main.go
+go run ./server/main.go
 ```
 
 4. Install Tracker frontend dependencies:
@@ -45,7 +45,7 @@ npm run dev
 ## Roadmap
 
 - [x] Real-time collaborative event feed (Yorkie integration)
-- [x] Backend API for issue management
+- [x] Server API for issue management
 - [x] Playbook creation and editing UI
 - [x] Health check on infrastructure
 - [x] Notification and paging system

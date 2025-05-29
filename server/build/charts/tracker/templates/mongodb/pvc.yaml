@@ -1,0 +1,19 @@
+{{- if and .Values.mongodb.enabled .Values.mongodb.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+  namespace: {{ .Values.mongodb.namespace }}
+  labels:
+    app.kubernetes.io/name: mongodb
+    app.kubernetes.io/component: database
+spec:
+  accessModes:
+    - {{ .Values.mongodb.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.mongodb.persistence.size | quote }}
+  {{- if .Values.mongodb.persistence.storageClass }}
+  storageClassName: {{ .Values.mongodb.persistence.storageClass | quote }}
+  {{- end }}
+{{- end }}

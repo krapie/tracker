@@ -1,0 +1,167 @@
+# Configuration for Tracker application
+tracker:
+  name: tracker
+  namespace: tracker
+
+  # Deployment configuration
+  deployment:
+    replicaCount: 1
+    revisionHistoryLimit: 3
+    image:
+      repository: krapi0314/tracker
+      tag: latest
+      pullPolicy: Always
+    resources: {}
+      # limits:
+      #   cpu: 500m
+      #   memory: 512Mi
+      # requests:
+      #   cpu: 250m
+      #   memory: 256Mi
+
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 8090
+    targetPort: 8090
+
+  # Environment variables
+  env:
+    port: "8090"
+    mongoUri: "mongodb://mongodb.mongodb.cluster.local:27017"
+    mongoDb: "tracker"
+    discordWebhookUrl: ""
+    frontendUrl: "http://localhost:5173"
+    minioEndpoint: "minio.minio.svc.cluster.local:9000"
+    minioAccessKey: "minioadmin"
+    minioSecretKey: "minioadmin"
+    minioBucket: "default-storage"
+
+# Configuration for Yorkie
+yorkie:
+  enabled: true
+  name: yorkie
+  namespace: yorkie
+
+  # Deployment configuration
+  deployment:
+    replicaCount: 1
+    image:
+      repository: yorkieteam/yorkie
+      tag: "0.5.7"
+      pullPolicy: IfNotPresent
+
+    args:
+      dbConnectionUri: mongodb://mongodb.mongodb.svc.cluster.local:27017/yorkie
+      dbName: yorkie
+
+    resources: {}
+      # limits:
+      #   cpu: 500m
+      #   memory: 512Mi
+      # requests:
+      #   cpu: 250m
+      #   memory: 256Mi
+
+# MongoDB configuration (custom deployment)
+mongodb:
+  enabled: true
+  name: mongodb
+  namespace: mongodb
+  replicaCount: 1
+  
+  image:
+    repository: mongo
+    tag: "4.4"
+    pullPolicy: IfNotPresent
+  
+  auth:
+    enabled: false
+    rootUser: "admin"
+    rootPassword: "adminpassword"
+  
+  persistence:
+    enabled: true
+    storageClass: "standard"
+    accessMode: ReadWriteOnce
+    size: 1Gi
+  
+  resources: {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 250m
+    #   memory: 256Mi
+
+# MinIO configuration (custom deployment)
+# TODO(krapie): MinIO will not work in local development environment for now.
+# Use AWS S3 instead for local development.
+minio:
+  enabled: true
+  name: minio
+  namespace: minio
+  
+  image:
+    repository: minio/minio
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  
+  auth:
+    rootUser: "minioadmin"
+    rootPassword: "minioadmin"
+  
+  persistence:
+    enabled: true
+    storageClass: "standard"
+    accessMode: ReadWriteOnce
+    size: 1Gi
+  
+  resources: {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 250m
+    #   memory: 256Mi
+
+# Configuration for ingress
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  ## Set to alb if you are using AWS, NCP ALB
+  # ingressClassName: alb
+  
+  # Host configuration
+  hosts:
+    enabled: false
+
+    trackerHost: "tracker.krapie.dev"
+    trackerPath: /api
+
+    yorkieHost: "yorkie.krapie.dev"
+    yorkiePath: /yorkie.v1.YorkieService
+
+    minioHost: "minio.krapie.dev"
+    minioPath: /
+  
+  # AWS ALB configuration
+  awsAlb:
+    enabled: false
+    scheme: internet-facing
+    certArn: "arn:aws:acm:ap-northeast-2:123412341234:certificate/1234-1234-1234-1234-1234"
+    listenPorts: '[{"HTTPS": 443}]'
+    backendProtocol: HTTP
+    backendProtocolVersion: HTTP1
+    groupName: "krapie.dev"
+    groupOrder: "4"
+  
+  # NCP ALB configuration
+  ncpAlb:
+    enabled: false
+    certNo: "1234"
+    healthcheckPath: "/healthz"
+  
+  # Nginx configuration
+  nginx:
+    enabled: true

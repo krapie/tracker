@@ -1,0 +1,20 @@
+{{- if .Values.mongodb.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: {{ .Values.mongodb.namespace }}
+  labels:
+    app.kubernetes.io/name: mongodb
+    app.kubernetes.io/component: database
+spec:
+  type: ClusterIP
+  ports:
+    - name: mongodb
+      port: 27017
+      targetPort: 27017
+      appProtocol: tcp
+  selector:
+    app.kubernetes.io/name: mongodb
+    app.kubernetes.io/component: database
+{{- end }}

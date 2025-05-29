@@ -102,3 +102,8 @@ func UpdateHealthEndpoint(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Health endpoint updated"})
 }
+
+// HealthzHandler returns 200 OK for liveness/readiness probes
+func HealthzHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+}

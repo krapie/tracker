@@ -1,0 +1,45 @@
+{{- if and .Values.yorkie.enabled .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: yorkie-ingress
+  namespace: {{ .Values.yorkie.namespace }}
+  annotations:
+    {{- if .Values.ingress.awsAlb.enabled }}
+    alb.ingress.kubernetes.io/scheme: {{ .Values.ingress.awsAlb.scheme }}
+    alb.ingress.kubernetes.io/certificate-arn: {{ .Values.ingress.awsAlb.certArn }}
+    alb.ingress.kubernetes.io/listen-ports: {{ .Values.ingress.awsAlb.listenPorts }}
+    alb.ingress.kubernetes.io/backend-protocol: {{ .Values.ingress.awsAlb.backendProtocol }}
+    alb.ingress.kubernetes.io/backend-protocol-version: {{ .Values.ingress.awsAlb.backendProtocolVersion }}
+    alb.ingress.kubernetes.io/group.name: {{ .Values.ingress.awsAlb.groupName }}
+    alb.ingress.kubernetes.io/group.order: {{ .Values.ingress.awsAlb.groupOrder | quote }}
+    {{- end }}
+    {{- if .Values.ingress.ncpAlb.enabled }}
+    alb.ingress.kubernetes.io/ssl-certificate-no: "{{ .Values.ingress.ncpAlb.certNo }}"
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80},{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/enable-http2: "true"
+    alb.ingress.kubernetes.io/healthcheck-path: {{ .Values.ingress.ncpAlb.healthcheckPath }}
+    {{- end }}
+    {{- if .Values.ingress.nginx.enabled }}
+    kubernetes.io/ingress.class: "nginx"
+    {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
+  rules:
+    {{- if .Values.ingress.hosts.enabled }}
+    - host: {{ .Values.ingress.hosts.yorkieHost }}
+      http:
+    {{- else }}
+    - http:
+    {{- end }}
+        paths:
+          - path: {{ .Values.ingress.hosts.yorkiePath }}/
+            pathType: Prefix
+            backend:
+              service:
+                name: yorkie
+                port:
+                  number: 8080
+{{- end }}

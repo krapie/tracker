@@ -1,0 +1,6 @@
+{{- if .Values.mongodb.enabled }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mongodb
+{{- end }}

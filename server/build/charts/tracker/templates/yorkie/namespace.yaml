@@ -1,0 +1,6 @@
+{{- if .Values.yorkie.enabled }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: yorkie
+{{- end }}

@@ -1,0 +1,49 @@
+{{- if .Values.yorkie.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yorkie
+  namespace: {{ .Values.yorkie.namespace }}
+  labels:
+    app.kubernetes.io/name: yorkie
+spec:
+  replicas: {{ .Values.yorkie.deployment.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: yorkie
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: yorkie
+    spec:
+      containers:
+        - name: yorkie
+          image: "{{ .Values.yorkie.deployment.image.repository }}:{{ .Values.yorkie.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.yorkie.deployment.image.pullPolicy }}
+          args:
+            - "server"
+            - "--mongo-connection-uri"
+            - "{{ .Values.yorkie.deployment.args.dbConnectionUri }}"
+            - "--mongo-yorkie-database"
+            - "{{ .Values.yorkie.deployment.args.dbName }}"
+            - "--enable-pprof"
+          ports:
+            - name: yorkie-api
+              containerPort: 8080
+            - name: yorkie-pprof
+              containerPort: 8081
+          resources:
+            {{- toYaml .Values.yorkie.deployment.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: yorkie.v1.YorkieService/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: yorkie.v1.YorkieService/health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}

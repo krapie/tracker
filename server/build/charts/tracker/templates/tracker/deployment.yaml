@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tracker.fullname" . }}
+  namespace: {{ .Values.tracker.namespace }}
+  labels:
+    {{- include "tracker.labels" . | nindent 4 }}
+    version: {{ .Chart.AppVersion | quote }}
+spec:
+  replicas: {{ .Values.tracker.deployment.replicaCount }}
+  revisionHistoryLimit: {{ .Values.tracker.deployment.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "tracker.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "tracker.selectorLabels" . | nindent 8 }}
+        version: {{ .Chart.AppVersion | quote }}
+    spec:
+      containers:
+        - name: {{ include "tracker.name" . }}
+          image: "{{ .Values.tracker.deployment.image.repository }}:{{ .Values.tracker.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.tracker.deployment.image.pullPolicy }}
+          env:
+            - name: PORT
+              value: {{ .Values.tracker.env.port | quote }}
+            - name: MONGO_URI
+              value: {{ .Values.tracker.env.mongoUri | quote }}
+            - name: MONGO_DB
+              value: {{ .Values.tracker.env.mongoDb | quote }}
+            - name: DISCORD_WEBHOOK_URL
+              value: {{ .Values.tracker.env.discordWebhookUrl | quote }}
+            - name: FRONTEND_URL
+              value: {{ .Values.tracker.env.frontendUrl | quote }}
+            - name: MINIO_ENDPOINT
+              value: {{ .Values.tracker.env.minioEndpoint | quote }}
+            - name: MINIO_ACCESS_KEY
+              value: {{ .Values.tracker.env.minioAccessKey | quote }}
+            - name: MINIO_SECRET_KEY
+              value: {{ .Values.tracker.env.minioSecretKey | quote }}
+            - name: MINIO_BUCKET
+              value: {{ .Values.tracker.env.minioBucket | quote }}
+          ports:
+            - containerPort: {{ .Values.tracker.service.targetPort }}
+          resources:
+            {{- toYaml .Values.tracker.deployment.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.tracker.service.targetPort }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.tracker.service.targetPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 5

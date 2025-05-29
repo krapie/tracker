@@ -16,7 +16,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app (static binary)
-RUN CGO_ENABLED=0 GOOS=linux go build -o tracker-server main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o tracker main.go
 
 # Start a minimal image for running
 FROM alpine:latest
@@ -24,7 +24,7 @@ FROM alpine:latest
 WORKDIR /app
 
 # Copy the binary from the builder
-COPY --from=builder /app/tracker-server .
+COPY --from=builder /app/tracker .
 
 # Copy .env if you want to provide defaults (optional)
 COPY .env .env
@@ -33,4 +33,4 @@ COPY .env .env
 EXPOSE 8090
 
 # Run the binary
-CMD ["./tracker-server"]
+CMD ["./tracker"]
