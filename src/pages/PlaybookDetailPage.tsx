@@ -4,6 +4,7 @@ import { Playbook, PlaybookStep } from "../types/types";
 import MDEditor from "@uiw/react-md-editor";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
+import { useTheme } from "../contexts/ThemeContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -66,6 +67,7 @@ export function PlaybookDetailPage() {
   const [name, setName] = useState("");
   const [steps, setSteps] = useState<PlaybookStep[]>([{ content: "" }]);
   const navigate = useNavigate();
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     if (!playbookId) return;
@@ -100,66 +102,119 @@ export function PlaybookDetailPage() {
     setPlaybook({ id: playbookId!, name, steps: filteredSteps });
   };
 
-  if (!playbook) return <div>Loading...</div>;
+  if (!playbook) return <div className="text-gh-fg-default dark:text-gh-fg-default-dark">Loading...</div>;
 
   return (
-    <div className="max-w-xl mx-auto p-8">
+    <div className="max-w-4xl mx-auto p-gh-6 font-gh">
       {!editMode ? (
         <>
-          <h1 className="text-2xl font-bold mb-4">{playbook.name}</h1>
-          <div className="relative border-l-2 border-gray-300 pl-6 mb-6 min-h-[120px] py-4">
-            {playbook.steps.length === 0 && (
-              <div className="text-gray-400">No steps yet.</div>
-            )}
-            {playbook.steps.map((step, idx) => (
-              <div key={idx} className="mb-8 flex items-start group">
-                <span className="absolute -left-3.5 flex items-center justify-center w-7 h-7 bg-blue-500 rounded-full ring-4 ring-white">
-                  <span className="text-white font-bold">{idx + 1}</span>
-                </span>
-                <div className="w-full">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Step {idx + 1}</span>
-                  </div>
-                  <div className="mt-1 text-gray-800 prose prose-sm max-w-none w-full">
-                    <MDEditor.Markdown source={step.content} wrapperElement={{"data-color-mode": "light"}} />
-                  </div>
+          {/* Header */}
+          <div className="border border-gh-border-default dark:border-gh-border-default-dark rounded-gh-lg bg-gh-canvas-default dark:bg-gh-canvas-default-dark mb-gh-6">
+            <div className="px-gh-6 py-gh-4 border-b border-gh-border-default dark:border-gh-border-default-dark">
+              <div className="flex items-center justify-between">
+                <h1 className="text-gh-xl font-semibold text-gh-fg-default dark:text-gh-fg-default-dark">{playbook.name}</h1>
+                <div className="flex gap-gh-2">
+                  <button
+                    className="bg-gh-accent-emphasis dark:bg-gh-accent-emphasis-dark hover:bg-gh-accent-emphasis/90 dark:hover:bg-gh-accent-emphasis-dark/90 text-gh-fg-on-emphasis dark:text-gh-fg-on-emphasis-dark px-gh-3 py-gh-2 rounded-gh text-gh-sm font-medium border border-gh-accent-emphasis dark:border-gh-accent-emphasis-dark transition-colors"
+                    onClick={() => setEditMode(true)}
+                  >
+                    Edit playbook
+                  </button>
+                  <button
+                    className="text-gh-accent-fg dark:text-gh-accent-fg-dark hover:text-gh-accent-emphasis dark:hover:text-gh-accent-emphasis-dark text-gh-sm font-medium transition-colors"
+                    onClick={() => navigate("/playbooks")}
+                  >
+                    ← Back to list
+                  </button>
                 </div>
               </div>
-            ))}
+            </div>
+            <div className="px-gh-6 py-gh-3">
+              <div className="text-gh-sm text-gh-fg-muted dark:text-gh-fg-muted-dark">
+                {playbook.steps.length} step{playbook.steps.length !== 1 ? 's' : ''}
+              </div>
+            </div>
           </div>
-          <button
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-            onClick={() => setEditMode(true)}
-          >
-            Edit Playbook
-          </button>
-          <button
-            className="ml-4 text-gray-600 underline"
-            onClick={() => navigate("/playbooks")}
-          >
-            Back to List
-          </button>
+
+          {/* Steps Display */}
+          <div className="border border-gh-border-default dark:border-gh-border-default-dark rounded-gh-lg bg-gh-canvas-default dark:bg-gh-canvas-default-dark">
+            <div className="px-gh-6 py-gh-4 border-b border-gh-border-default dark:border-gh-border-default-dark">
+              <h2 className="text-gh-lg font-semibold text-gh-fg-default dark:text-gh-fg-default-dark">Steps</h2>
+            </div>
+            <div className="px-gh-6 py-gh-6">
+              <div className="relative border-l-2 border-gh-border-default dark:border-gh-border-default-dark pl-gh-6 min-h-[120px]">
+                {playbook.steps.length === 0 && (
+                  <div className="text-gh-fg-muted dark:text-gh-fg-muted-dark">No steps yet.</div>
+                )}
+                {playbook.steps.map((step, idx) => (
+                  <div key={idx} className="mb-gh-8 flex items-start group">
+                    <span className="absolute -left-3.5 flex items-center justify-center w-7 h-7 bg-gh-accent-emphasis dark:bg-gh-accent-emphasis-dark rounded-full ring-4 ring-gh-canvas-default dark:ring-gh-canvas-default-dark">
+                      <span className="text-gh-fg-on-emphasis dark:text-gh-fg-on-emphasis-dark font-bold text-gh-sm">{idx + 1}</span>
+                    </span>
+                    <div className="w-full">
+                      <div className="flex items-center gap-gh-2">
+                        <span className="font-semibold text-gh-fg-default dark:text-gh-fg-default-dark">Step {idx + 1}</span>
+                      </div>
+                      <div className="mt-gh-1 text-gh-fg-default dark:text-gh-fg-default-dark prose prose-sm dark:prose-invert max-w-none w-full">
+                        <MDEditor.Markdown source={step.content} wrapperElement={{"data-color-mode": resolvedTheme}} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </>
       ) : (
         <>
-          <h1 className="text-2xl font-bold mb-4">Edit Playbook</h1>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              className="border px-3 py-2 w-full rounded"
-              placeholder="Playbook name"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              required
-            />
-            <div>
-              <label className="font-semibold">Steps:</label>
-              {steps.map((step, idx) => (
-                <div key={idx} className="flex gap-2 mb-2">
-                  <div className="flex-1">
+          {/* Edit Mode Header */}
+          <div className="border border-gh-border-default dark:border-gh-border-default-dark rounded-gh-lg bg-gh-canvas-default dark:bg-gh-canvas-default-dark mb-gh-6">
+            <div className="px-gh-6 py-gh-4 border-b border-gh-border-default dark:border-gh-border-default-dark">
+              <h1 className="text-gh-xl font-semibold text-gh-fg-default dark:text-gh-fg-default-dark">Edit Playbook</h1>
+            </div>
+          </div>
+
+          {/* Edit Form */}
+          <form onSubmit={handleSubmit} className="space-y-gh-6">
+            <div className="border border-gh-border-default dark:border-gh-border-default-dark rounded-gh-lg bg-gh-canvas-default dark:bg-gh-canvas-default-dark">
+              <div className="px-gh-6 py-gh-4 border-b border-gh-border-default dark:border-gh-border-default-dark">
+                <label className="block text-gh-sm font-medium text-gh-fg-default dark:text-gh-fg-default-dark mb-gh-2">
+                  Playbook name
+                </label>
+                <input
+                  className="border border-gh-border-default dark:border-gh-border-default-dark px-gh-3 py-gh-2 w-full rounded-gh bg-gh-canvas-default dark:bg-gh-canvas-default-dark text-gh-fg-default dark:text-gh-fg-default-dark focus:border-gh-accent-emphasis dark:focus:border-gh-accent-emphasis-dark outline-none"
+                  placeholder="Playbook name"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="border border-gh-border-default dark:border-gh-border-default-dark rounded-gh-lg bg-gh-canvas-default dark:bg-gh-canvas-default-dark">
+              <div className="px-gh-6 py-gh-4 border-b border-gh-border-default dark:border-gh-border-default-dark">
+                <label className="block text-gh-sm font-medium text-gh-fg-default dark:text-gh-fg-default-dark">Steps</label>
+              </div>
+              <div className="px-gh-6 py-gh-4 space-y-gh-4">
+                {steps.map((step, idx) => (
+                  <div key={idx} className="border border-gh-border-default dark:border-gh-border-default-dark rounded-gh-lg bg-gh-canvas-subtle dark:bg-gh-canvas-subtle-dark p-gh-4">
+                    <div className="flex items-center justify-between mb-gh-2">
+                      <h4 className="text-gh-sm font-medium text-gh-fg-default dark:text-gh-fg-default-dark">Step {idx + 1}</h4>
+                      {steps.length > 1 && (
+                        <button 
+                          type="button" 
+                          onClick={() => removeStep(idx)}
+                          className="text-gh-danger-fg dark:text-gh-danger-fg-dark hover:text-gh-danger-emphasis dark:hover:text-gh-danger-emphasis-dark text-gh-sm transition-colors"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
                     <MDEditor
                       value={step.content}
                       onChange={v => handleStepChange(idx, v || "")}
                       height={120}
+                      data-color-mode={resolvedTheme}
                       onPaste={async (event) => {
                         await handleImagePasteOrDrop(event.clipboardData, v => handleStepChange(idx, v || ""));
                       }}
@@ -169,30 +224,32 @@ export function PlaybookDetailPage() {
                       }}
                     />
                   </div>
-                  {steps.length > 1 && (
-                    <button type="button" onClick={() => removeStep(idx)}>
-                      ❌
-                    </button>
-                  )}
-                </div>
-              ))}
-              <button type="button" onClick={addStep} className="text-blue-600 mt-2">
-                + Add Step
+                ))}
+                <button 
+                  type="button" 
+                  onClick={addStep} 
+                  className="text-gh-accent-fg dark:text-gh-accent-fg-dark hover:text-gh-accent-emphasis dark:hover:text-gh-accent-emphasis-dark text-gh-sm font-medium transition-colors"
+                >
+                  + Add Step
+                </button>
+              </div>
+            </div>
+
+            <div className="flex gap-gh-3">
+              <button
+                type="submit"
+                className="bg-gh-success-emphasis dark:bg-gh-success-emphasis-dark hover:bg-gh-success-emphasis/90 dark:hover:bg-gh-success-emphasis-dark/90 text-gh-fg-on-emphasis dark:text-gh-fg-on-emphasis-dark px-gh-4 py-gh-2 rounded-gh text-gh-sm font-medium border border-gh-success-emphasis dark:border-gh-success-emphasis-dark transition-colors"
+              >
+                Save changes
+              </button>
+              <button
+                type="button"
+                className="bg-gh-canvas-subtle dark:bg-gh-canvas-subtle-dark hover:bg-gh-canvas-inset dark:hover:bg-gh-canvas-inset-dark text-gh-fg-default dark:text-gh-fg-default-dark px-gh-4 py-gh-2 rounded-gh text-gh-sm font-medium border border-gh-border-default dark:border-gh-border-default-dark transition-colors"
+                onClick={() => setEditMode(false)}
+              >
+                Cancel
               </button>
             </div>
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              className="ml-4 text-gray-600 underline"
-              onClick={() => setEditMode(false)}
-            >
-              Cancel
-            </button>
           </form>
         </>
       )}

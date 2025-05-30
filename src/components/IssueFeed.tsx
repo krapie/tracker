@@ -4,6 +4,7 @@ import { EventComment } from "../types/types";
 import MDEditor from "@uiw/react-md-editor";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
+import { useTheme } from "../contexts/ThemeContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -71,6 +72,7 @@ export function IssueFeed() {
   const [editingText, setEditingText] = useState<string>("");
   const editorRef = useRef<HTMLDivElement>(null);
   const { root, update, loading, error } = useDocument<{ events: EventComment[] }>();
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     if (editorRef.current) {
@@ -89,8 +91,8 @@ export function IssueFeed() {
     if (author) localStorage.setItem("tracker_author", author);
   }, [author]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (loading) return <div className="text-gh-fg-default dark:text-gh-fg-default-dark">Loading...</div>;
+  if (error) return <div className="text-gh-danger-fg dark:text-gh-danger-fg-dark">Error: {error.message}</div>;
 
   const handleSend = () => {
     if (!input?.trim() || !author.trim()) return;
@@ -131,23 +133,23 @@ export function IssueFeed() {
   const eventsDesc = [...root.events].reverse();
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Event Timeline</h2>
-      <div className="flex gap-2 mb-2">
+    <div className="font-gh">
+      <h2 className="text-gh-lg font-semibold mb-gh-4 text-gh-fg-default dark:text-gh-fg-default-dark">Event Timeline</h2>
+      <div className="flex gap-gh-2 mb-gh-3">
         <input
-          className="border px-2 py-1 flex-1"
+          className="border border-gh-border-default dark:border-gh-border-default-dark px-gh-3 py-gh-2 flex-1 bg-gh-canvas-default dark:bg-gh-canvas-default-dark text-gh-fg-default dark:text-gh-fg-default-dark rounded-gh focus:border-gh-accent-emphasis dark:focus:border-gh-accent-emphasis-dark outline-none"
           placeholder="Your name"
           value={author}
           onChange={e => setAuthor(e.target.value)}
         />
       </div>
-      <div className="mb-4">
+      <div className="mb-gh-4">
         <MDEditor
           value={input}
           height={editingId ? 300 : 180}
           visibleDragbar={false}
           onChange={val => setInput(val || "")}
-          data-color-mode="light"
+          data-color-mode={resolvedTheme}
           onPaste={async (event) => {
             await handleImagePasteOrDrop(event.clipboardData, setInput);
           }}
@@ -157,7 +159,7 @@ export function IssueFeed() {
           }}
         />
         <button
-          className="bg-green-600 text-white px-4 py-1 rounded mt-2"
+          className="bg-gh-success-emphasis dark:bg-gh-success-emphasis-dark hover:bg-gh-success-emphasis/90 dark:hover:bg-gh-success-emphasis-dark/90 text-gh-fg-on-emphasis dark:text-gh-fg-on-emphasis-dark px-gh-4 py-gh-2 rounded-gh mt-gh-2 text-gh-sm font-medium border border-gh-success-emphasis dark:border-gh-success-emphasis-dark transition-colors"
           onClick={handleSend}
         >
           Add Event
@@ -165,30 +167,30 @@ export function IssueFeed() {
       </div>
       <div
         ref={editorRef}
-        className="relative border-l-2 border-gray-300 pl-6 mb-4 min-h-[320px] py-4"
+        className="relative border-l-2 border-gh-border-default dark:border-gh-border-default-dark pl-gh-6 mb-gh-4 min-h-[320px] py-gh-4"
       >
         {eventsDesc.length === 0 && (
-          <div className="text-gray-400">No events yet.</div>
+          <div className="text-gh-fg-muted dark:text-gh-fg-muted-dark">No events yet.</div>
         )}
         {eventsDesc.map((ev) => (
-          <div key={ev.id} className="mb-8 flex items-start group">
-            <span className="absolute -left-3.5 flex items-center justify-center w-7 h-7 bg-blue-500 rounded-full ring-4 ring-white">
-              <span className="text-white font-bold">{ev.author[0]?.toUpperCase() || "?"}</span>
+          <div key={ev.id} className="mb-gh-8 flex items-start group">
+            <span className="absolute -left-3.5 flex items-center justify-center w-7 h-7 bg-gh-accent-emphasis dark:bg-gh-accent-emphasis-dark rounded-full ring-4 ring-gh-canvas-default dark:ring-gh-canvas-default-dark">
+              <span className="text-gh-fg-on-emphasis dark:text-gh-fg-on-emphasis-dark font-bold text-gh-sm">{ev.author[0]?.toUpperCase() || "?"}</span>
             </span>
             <div className="w-full">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">{ev.author}</span>
-                <span className="text-xs text-gray-500">{new Date(ev.createdAt).toLocaleString()}</span>
+              <div className="flex items-center gap-gh-2">
+                <span className="font-semibold text-gh-fg-default dark:text-gh-fg-default-dark">{ev.author}</span>
+                <span className="text-gh-xs text-gh-fg-muted dark:text-gh-fg-muted-dark">{new Date(ev.createdAt).toLocaleString()}</span>
                 {editingId !== ev.id && (
                   <button
-                    className="ml-2 text-xs text-blue-600 underline opacity-0 group-hover:opacity-100"
+                    className="ml-gh-2 text-gh-xs text-gh-accent-fg dark:text-gh-accent-fg-dark underline opacity-0 group-hover:opacity-100 transition-opacity hover:text-gh-accent-emphasis dark:hover:text-gh-accent-emphasis-dark"
                     onClick={() => handleEdit(ev.id, ev.text)}
                   >
                     Edit
                   </button>
                 )}
               </div>
-              <div className="mt-1 text-gray-800 prose prose-sm max-w-none w-full">
+              <div className="mt-gh-1 text-gh-fg-default dark:text-gh-fg-default-dark prose prose-sm dark:prose-invert max-w-none w-full">
                 {editingId === ev.id ? (
                   <div>
                     <MDEditor
@@ -196,7 +198,7 @@ export function IssueFeed() {
                       height={300}
                       visibleDragbar={false}
                       onChange={val => setEditingText(val || "")}
-                      data-color-mode="light"
+                      data-color-mode={resolvedTheme}
                       onPaste={async (event) => {
                         await handleImagePasteOrDrop(event.clipboardData, val => setEditingText(val || ""));
                       }}
@@ -205,15 +207,15 @@ export function IssueFeed() {
                         await handleImagePasteOrDrop(event.dataTransfer, val => setEditingText(val || ""));
                       }}
                     />
-                    <div className="mt-2 flex gap-2">
+                    <div className="mt-gh-2 flex gap-gh-2">
                       <button
-                        className="bg-blue-600 text-white px-3 py-1 rounded"
+                        className="bg-gh-accent-emphasis dark:bg-gh-accent-emphasis-dark hover:bg-gh-accent-emphasis/90 dark:hover:bg-gh-accent-emphasis-dark/90 text-gh-fg-on-emphasis dark:text-gh-fg-on-emphasis-dark px-gh-3 py-gh-2 rounded-gh text-gh-sm font-medium border border-gh-accent-emphasis dark:border-gh-accent-emphasis-dark transition-colors"
                         onClick={handleEditSave}
                       >
                         Save
                       </button>
                       <button
-                        className="bg-gray-300 text-gray-700 px-3 py-1 rounded"
+                        className="bg-gh-canvas-subtle dark:bg-gh-canvas-subtle-dark hover:bg-gh-canvas-inset dark:hover:bg-gh-canvas-inset-dark text-gh-fg-default dark:text-gh-fg-default-dark px-gh-3 py-gh-2 rounded-gh text-gh-sm font-medium border border-gh-border-default dark:border-gh-border-default-dark transition-colors"
                         onClick={handleEditCancel}
                       >
                         Cancel
@@ -224,7 +226,7 @@ export function IssueFeed() {
                   <>
                     <MDEditor.Markdown
                       source={ev.text}
-                      wrapperElement={{ "data-color-mode": "light" }}
+                      wrapperElement={{ "data-color-mode": resolvedTheme }}
                     />
                   </>
                 )}
