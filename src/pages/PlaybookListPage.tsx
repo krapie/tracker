@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Playbook } from "../types/types";
 import { useNavigate } from "react-router-dom";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { api } from "../utils/api";
 
 export function PlaybookListPage() {
   const [playbooks, setPlaybooks] = useState<Playbook[]>([]);
@@ -10,7 +9,7 @@ export function PlaybookListPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`${API_URL}/api/playbooks/`)
+    api.get('/api/playbooks/')
       .then(res => res.json())
       .then(data => setPlaybooks(Array.isArray(data) ? data : []));
   }, []);
@@ -19,11 +18,7 @@ export function PlaybookListPage() {
   const handleCreate = async () => {
     const name = playbookName.trim();
     if (!name) return;
-    const res = await fetch(`${API_URL}/api/playbooks/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, steps: [{ content: "" }] }),
-    });
+    const res = await api.post('/api/playbooks/', { name, steps: [{ content: "" }] });
     if (res.ok) {
       const created = await res.json();
       setPlaybookName("");

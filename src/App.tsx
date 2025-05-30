@@ -6,7 +6,10 @@ import { PlaybookListPage } from "./pages/PlaybookListPage";
 import { PlaybookDetailPage } from "./pages/PlaybookDetailPage";
 import { HomePage } from "./pages/HomePage";
 import { HealthListPage } from "./pages/HealthListPage";
+import { LoginPage } from "./pages/LoginPage";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ThemeToggle } from "./components/ThemeToggle";
 import "./index.css";
 
@@ -27,6 +30,12 @@ function IssueDetailWithProvider() {
 
 // Header bar layout
 function AppLayout() {
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <div className="min-h-screen bg-gh-canvas-default dark:bg-gh-canvas-default-dark transition-colors font-gh">
       <nav className="flex justify-between items-center px-gh-6 py-gh-4 border-b bg-gh-canvas-default dark:bg-gh-canvas-default-dark border-gh-border-default dark:border-gh-border-default-dark transition-colors">
@@ -62,6 +71,24 @@ function AppLayout() {
           >
             Health
           </Link>
+          {user && (
+            <div className="relative group">
+              <span className="text-gh-fg-muted dark:text-gh-fg-muted-dark text-gh-sm cursor-pointer px-gh-3 py-gh-2 rounded-gh hover:bg-gh-canvas-subtle dark:hover:bg-gh-canvas-subtle-dark transition-colors">
+                Welcome, {user.username}
+              </span>
+              {/* Dropdown menu that appears on hover */}
+              <div className="absolute right-0 top-full mt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="bg-gh-canvas-overlay dark:bg-gh-canvas-overlay-dark border border-gh-border-default dark:border-gh-border-default-dark rounded-gh shadow-lg min-w-[120px]">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-gh-3 py-gh-2 text-gh-sm text-gh-fg-default dark:text-gh-fg-default-dark hover:text-gh-danger-fg dark:hover:text-gh-danger-fg-dark hover:bg-gh-canvas-subtle dark:hover:bg-gh-canvas-subtle-dark transition-colors rounded-gh"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           <ThemeToggle />
         </div>
       </nav>
@@ -75,18 +102,24 @@ function AppLayout() {
 function App() {
   return (
     <ThemeProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/issues" element={<IssuesListPage />} />
-            <Route path="/issues/:issueId" element={<IssueDetailWithProvider />} />
-            <Route path="/playbooks" element={<PlaybookListPage />} />
-            <Route path="/playbooks/:playbookId" element={<PlaybookDetailPage />} />
-            <Route path="/healths" element={<HealthListPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public route for login */}
+            <Route path="/login" element={<LoginPage />} />
+            
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/issues" element={<IssuesListPage />} />
+              <Route path="/issues/:issueId" element={<IssueDetailWithProvider />} />
+              <Route path="/playbooks" element={<PlaybookListPage />} />
+              <Route path="/playbooks/:playbookId" element={<PlaybookDetailPage />} />
+              <Route path="/healths" element={<HealthListPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

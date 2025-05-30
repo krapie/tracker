@@ -5,8 +5,7 @@ import MDEditor from "@uiw/react-md-editor";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import { useTheme } from "../contexts/ThemeContext";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { api } from "../utils/api";
 
 /**
  * Uses @uiw/react-md-editor for markdown editing and preview.
@@ -16,10 +15,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 async function uploadImageToBackend(file: File): Promise<string | null> {
   const formData = new FormData();
   formData.append("file", file);
-  const res = await fetch(`${API_URL}/api/images/upload`, {
-    method: "POST",
-    body: formData,
-  });
+  const res = await api.uploadFile('/api/images/upload', formData);
   if (!res.ok) return null;
   const data = await res.json();
   return data.url as string;

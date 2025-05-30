@@ -7,6 +7,7 @@ import (
 
 func RegisterIssueRoutes(r *gin.Engine) {
 	issues := r.Group("/api/issues")
+	issues.Use(handlers.AuthMiddleware()) // Protect all issue routes with JWT authentication
 	{
 		issues.GET("/", handlers.GetIssues)
 		issues.GET("/:id", handlers.GetIssue)

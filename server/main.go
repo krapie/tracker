@@ -39,7 +39,7 @@ func main() {
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
@@ -48,6 +48,10 @@ func main() {
 	routes.RegisterPlaybookRoutes(r)
 	routes.RegisterHealthRoutes(r)
 	routes.RegisterImageRoutes(r)
+	routes.RegisterAuthRoutes(r)
+
+	// Initialize admin user
+	handlers.InitializeAdminUser()
 
 	// Start health checkers for all endpoints
 	health.StartAllHealthCheckers()

@@ -22,6 +22,7 @@ const (
 	issuesCollName    = "issues"
 	playbooksCollName = "playbooks"
 	healthCollName    = "health_endpoints"
+	usersCollName     = "users"
 )
 
 func getMongoClient() (*mongo.Client, error) {
@@ -45,6 +46,18 @@ func getMongoClient() (*mongo.Client, error) {
 		clientInstance = client
 	})
 	return clientInstance, clientInstanceErr
+}
+
+func GetDB() *mongo.Database {
+	client, err := getMongoClient()
+	if err != nil {
+		log.Fatalf("Could not connect to MongoDB: %v", err)
+	}
+	dbName := os.Getenv("MONGO_DB")
+	if dbName == "" {
+		dbName = defaultDBName
+	}
+	return client.Database(dbName)
 }
 
 func GetIssuesCollection() *mongo.Collection {
@@ -84,4 +97,17 @@ func GetHealthCollection() *mongo.Collection {
 	}
 	db := client.Database(dbName)
 	return db.Collection(healthCollName)
+}
+
+func GetUsersCollection() *mongo.Collection {
+	client, err := getMongoClient()
+	if err != nil {
+		log.Fatalf("Could not connect to MongoDB: %v", err)
+	}
+	dbName := os.Getenv("MONGO_DB")
+	if dbName == "" {
+		dbName = defaultDBName
+	}
+	db := client.Database(dbName)
+	return db.Collection(usersCollName)
 }

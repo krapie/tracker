@@ -5,16 +5,12 @@ import MDEditor from "@uiw/react-md-editor";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import { useTheme } from "../contexts/ThemeContext";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { api } from "../utils/api";
 
 async function uploadImageToBackend(file: File): Promise<string | null> {
   const formData = new FormData();
   formData.append("file", file);
-  const res = await fetch(`${API_URL}/api/images/upload`, {
-    method: "POST",
-    body: formData,
-  });
+  const res = await api.uploadFile('/api/images/upload', formData);
   if (!res.ok) return null;
   const data = await res.json();
   return data.url as string;
@@ -71,7 +67,7 @@ export function PlaybookDetailPage() {
 
   useEffect(() => {
     if (!playbookId) return;
-    fetch(`${API_URL}/api/playbooks/${playbookId}`)
+    api.get(`/api/playbooks/${playbookId}`)
       .then(res => res.json())
       .then((data: Playbook) => {
         setPlaybook(data);
@@ -93,11 +89,7 @@ export function PlaybookDetailPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const filteredSteps = steps.filter(s => s.content.trim());
-    await fetch(`${API_URL}/api/playbooks/${playbookId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, steps: filteredSteps }),
-    });
+    await api.put(`/api/playbooks/${playbookId}`, { name, steps: filteredSteps });
     setEditMode(false);
     setPlaybook({ id: playbookId!, name, steps: filteredSteps });
   };

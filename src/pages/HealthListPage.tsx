@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { HealthEndpoint } from "../types/types";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { api } from "../utils/api";
 
 function statusLabel(status: number) {
   if (status === 1) return { text: "up", className: "bg-gh-success-subtle dark:bg-gh-success-subtle-dark text-gh-success-fg dark:text-gh-success-fg-dark" };
@@ -31,7 +30,7 @@ export function HealthListPage() {
 
   const fetchEndpoints = () => {
     setLoading(true);
-    fetch(`${API_URL}/api/health/status`)
+    api.get('/api/health/status')
       .then(res => res.json())
       .then(data => setEndpoints(Array.isArray(data) ? data : []))
       .finally(() => setLoading(false));
@@ -60,11 +59,7 @@ export function HealthListPage() {
 
   const handleRegister = async () => {
     if (!name.trim() || !url.trim()) return;
-    await fetch(`${API_URL}/api/health/endpoints`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, url, threshold, interval }),
-    });
+    await api.post('/api/health/endpoints', { name, url, threshold, interval });
     setName("");
     setUrl("");
     setThreshold(3);
@@ -104,11 +99,7 @@ export function HealthListPage() {
 
   const saveEdit = async (id: string) => {
     const { name, url, threshold, interval } = editState[id];
-    await fetch(`${API_URL}/api/health/endpoints/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, url, threshold: Number(threshold), interval: Number(interval) }),
-    });
+    await api.put(`/api/health/endpoints/${id}`, { name, url, threshold: Number(threshold), interval: Number(interval) });
     setEditState(s => ({
       ...s,
       [id]: { ...s[id], editing: false },

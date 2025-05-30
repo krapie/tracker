@@ -6,5 +6,9 @@ import (
 )
 
 func RegisterImageRoutes(r *gin.Engine) {
-	r.POST("/api/images/upload", handlers.UploadImage)
+	images := r.Group("/api/images")
+	images.Use(handlers.AuthMiddleware()) // Protect image upload with JWT authentication
+	{
+		images.POST("/upload", handlers.UploadImage)
+	}
 }

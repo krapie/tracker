@@ -1,7 +1,5 @@
 # Tracker
 
-![Showcase](./image/showcase.png)
-
 Tracker is real-time collaborative infrastructure event tracking system.
 
 ## Features
@@ -48,7 +46,7 @@ npm run dev
 - [x] Health check on infrastructure
 - [x] Notification and paging system
 - [x] Automatic issue creation from infrastructure events (webhooks/integrations)
-- [x] Markdown support for event messages (TBD)
+- [x] Markdown support for event messages
 - [x] Image embedding in event feed (MinIO/S3 integration)
+- [x] Authentication with basic auth and JWT
 - [ ] LLM-powered summary: Link issues to playbooks (Ollama integration)
-- [ ] GitHub OAuth authentication and authorization

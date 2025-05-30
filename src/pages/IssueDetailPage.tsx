@@ -5,8 +5,7 @@ import { IssueFeed } from "../components/IssueFeed";
 import { useDocument } from "@yorkie-js/react";
 import MDEditor from "@uiw/react-md-editor";
 import { useTheme } from "../contexts/ThemeContext";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { api } from "../utils/api";
 
 export function IssueDetailPage() {
   const { issueId } = useParams<{ issueId: string }>();
@@ -30,7 +29,7 @@ export function IssueDetailPage() {
   // Fetch issue info from backend when issueId changes
   useEffect(() => {
     if (!issueId) return;
-    fetch(`${API_URL}/api/issues/${issueId}`)
+    api.get(`/api/issues/${issueId}`)
       .then(res => res.json())
       .then(data => setIssueInfo(data))
       .catch(() => setIssueInfo(null));
@@ -38,7 +37,7 @@ export function IssueDetailPage() {
 
   // Fetch playbooks from backend
   useEffect(() => {
-    fetch(`${API_URL}/api/playbooks/`)
+    api.get('/api/playbooks/')
       .then(res => res.json())
       .then(data => setPlaybooks(Array.isArray(data) ? data : []))
       .catch(() => setPlaybooks([]));
@@ -62,11 +61,7 @@ export function IssueDetailPage() {
       root.status = newStatus;
     });
 
-    fetch(`${API_URL}/api/issues/${issueId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus === "ongoing" ? 1 : 0 }),
-    });
+    api.put(`/api/issues/${issueId}`, { status: newStatus === "ongoing" ? 1 : 0 });
   };
 
   // Title editing handlers
@@ -79,11 +74,7 @@ export function IssueDetailPage() {
     if (!editedTitle.trim() || !issueId) return;
     
     try {
-      const response = await fetch(`${API_URL}/api/issues/${issueId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: editedTitle.trim() }),
-      });
+      const response = await api.put(`/api/issues/${issueId}`, { name: editedTitle.trim() });
 
       if (response.ok) {
         // Update local state

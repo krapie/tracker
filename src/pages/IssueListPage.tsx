@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Issue } from "../types/types";
-
-const API_URL = import.meta.env.VITE_API_URL 
+import { api } from "../utils/api"; 
 
 export function IssuesListPage() {
   const [issues, setIssues] = useState<Issue[]>([]);
@@ -11,7 +10,7 @@ export function IssuesListPage() {
 
   // Fetch issues from backend
   const fetchIssues = () => {
-    fetch(`${API_URL}/api/issues/`)
+    api.get('/api/issues/')
       .then(res => res.json())
       .then(data => setIssues(data))
       .catch(() => setIssues([]));
@@ -23,11 +22,7 @@ export function IssuesListPage() {
 
   const handleCreate = async () => {
     if (!issueName.trim()) return;
-    const res = await fetch(`${API_URL}/api/issues/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: issueName }),
-    });
+    const res = await api.post('/api/issues/', { name: issueName });
     if (res.ok) {
       setIssueName("");
       fetchIssues();

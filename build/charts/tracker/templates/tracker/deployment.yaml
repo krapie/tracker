@@ -29,6 +29,12 @@ spec:
               value: {{ .Values.tracker.env.mongoUri | quote }}
             - name: MONGO_DB
               value: {{ .Values.tracker.env.mongoDb | quote }}
+            - name: ADMIN_USERNAME
+              value: {{ .Values.tracker.env.adminUsername | quote }}
+            - name: ADMIN_PASSWORD
+              value: {{ .Values.tracker.env.adminPassword | quote }}
+            - name: JWT_SECRET
+              value: {{ .Values.tracker.env.jwtSecret | quote }}
             - name: DISCORD_WEBHOOK_URL
               value: {{ .Values.tracker.env.discordWebhookUrl | quote }}
             - name: FRONTEND_URL
