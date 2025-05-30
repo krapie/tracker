@@ -16,12 +16,22 @@ func main() {
 	// Load .env file if present
 	_ = godotenv.Load()
 
-	// Initialize MinIO storage
-	minioStorage, err := storage.NewMinioStorage()
-	if err != nil {
-		panic(err)
+	var storageBackend storage.Storage
+	if os.Getenv("STORAGE_BACKEND") == "s3" {
+		s3Storage, err := storage.NewS3Storage()
+		if err != nil {
+			panic(err)
+		}
+		storageBackend = s3Storage
+	} else {
+		minioStorage, err := storage.NewMinioStorage()
+		if err != nil {
+			panic(err)
+		}
+		storageBackend = minioStorage
 	}
-	handlers.InitStorageBackend(minioStorage)
+
+	handlers.InitStorageBackend(storageBackend)
 
 	r := gin.Default()
 

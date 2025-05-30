@@ -71,8 +71,9 @@ func getFrontendURL() string {
 
 // Create an issue in MongoDB and return its ID as a string
 func createIssueForDown(endpointName, endpointURL string) (string, error) {
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
 	issue := models.Issue{
-		Name:      fmt.Sprintf("DOWN: %s", endpointName),
+		Name:      fmt.Sprintf("Down: %s (%s)", endpointName, timestamp),
 		CreatedAt: time.Now().UnixMilli(),
 		Status:    1, // Ongoing
 	}

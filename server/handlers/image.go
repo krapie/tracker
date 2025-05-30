@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/krapie/tracker/storage"
@@ -24,7 +25,10 @@ func UploadImage(c *gin.Context) {
 	contentType := header.Header.Get("Content-Type")
 	size := header.Size
 
-	url, err := storageBackend.Upload(c.Request.Context(), header.Filename, file, size, contentType)
+	// Set image name to issue + timestamp
+	imageName := "issue-" + time.Now().Format("20060102-150405") + "-" + header.Filename
+
+	url, err := storageBackend.Upload(c.Request.Context(), imageName, file, size, contentType)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

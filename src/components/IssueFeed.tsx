@@ -78,6 +78,17 @@ export function IssueFeed() {
     }
   }, [root?.events?.length]);
 
+  // Load author from localStorage on mount
+  useEffect(() => {
+    const savedAuthor = localStorage.getItem("tracker_author");
+    if (savedAuthor) setAuthor(savedAuthor);
+  }, []);
+
+  // Save author to localStorage when it changes
+  useEffect(() => {
+    if (author) localStorage.setItem("tracker_author", author);
+  }, [author]);
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
