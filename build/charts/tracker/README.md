@@ -1,5 +1,7 @@
 # tracker
 
+> Do not use this Helm chart as it is currently not working correctly. It is under development and may not function as expected.
+
 Installs Tracker, a real-time collaborative infrastructure event tracking system.
 
 ## Prerequisites

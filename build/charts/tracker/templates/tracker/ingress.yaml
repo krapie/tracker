@@ -38,6 +38,7 @@ spec:
     - http:
     {{- end }}
         paths:
+          # Tracker API Server - should come after web routes for proper routing
           - path: {{ .Values.ingress.hosts.trackerPath }}/
             pathType: Prefix
             backend:
@@ -45,3 +46,11 @@ spec:
                 name: {{ include "tracker.fullname" . }}
                 port:
                   number: {{ .Values.tracker.service.port }}
+          # Tracker Web Application - catch-all for SPA routing
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "tracker.fullname" . }}-web
+                port:
+                  number: {{ .Values.trackerWeb.service.port }}
