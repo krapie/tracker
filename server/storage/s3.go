@@ -3,9 +3,9 @@ package storage
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"os"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -63,15 +63,7 @@ func (s *S3Storage) Upload(ctx context.Context, objectName string, reader io.Rea
 }
 
 func (s *S3Storage) GetURL(ctx context.Context, objectName string) (string, error) {
-	req, _ := s.Client.GetObjectRequest(&s3.GetObjectInput{
-		Bucket: aws.String(s.BucketName),
-		Key:    aws.String(objectName),
-	})
-	urlStr, err := req.Presign(24 * time.Hour)
-	if err != nil {
-		return "", err
-	}
-	return urlStr, nil
+	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", s.BucketName, s.Region, objectName), nil
 }
 
 func (s *S3Storage) Delete(ctx context.Context, objectName string) error {

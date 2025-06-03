@@ -28,18 +28,18 @@ tracker:
   # Environment variables
   env:
     port: "8090"
-    mongoUri: "mongodb://mongodb.mongodb.cluster.local:27017"
+    mongoUri: "mongodb://mongodb.mongodb.svc.cluster.local:27017"
     mongoDb: "tracker"
     adminUsername: "admin"
     adminPassword: "admin"
     jwtSecret: "krapie"
     discordWebhookUrl: ""
-    frontendUrl: "http://localhost:5173"
+    frontendUrl: "http://localhost"
     storageBackend: "s3"
     awsRegion: "ap-northeast-2"
     awsS3Bucket: "tracker"
-    awsS3AccessKeyId: ""
-    awsS3SecretAccessKey: ""
+    awsAccessKeyId: ""
+    awsSecretAccessKey: ""
     minioEndpoint: "minio.minio.svc.cluster.local:9000"
     minioAccessKey: "minioadmin"
     minioSecretKey: "minioadmin"
@@ -50,7 +50,7 @@ trackerWeb:
   namespace: tracker
   
   deployment:
-    replicaCount: 2
+    replicaCount: 1
     revisionHistoryLimit: 3
     
     image:
@@ -65,11 +65,6 @@ trackerWeb:
       requests:
         cpu: 100m
         memory: 128Mi
-  # Environment variables for the web application
-  env:
-    yorkieRpcAddr: "http://localhost:8080"
-    yorkieApiKey: ""
-    apiUrl: "http://localhost:8090"
   
   service:
     type: ClusterIP
@@ -137,7 +132,7 @@ mongodb:
 # TODO(krapie): MinIO will not work in local development environment for now.
 # Use AWS S3 instead for local development.
 minio:
-  enabled: true
+  enabled: false
   name: minio
   namespace: minio
   

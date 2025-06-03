@@ -101,13 +101,6 @@ spec:
         - name: {{ include "tracker.name" . }}-web
           image: "{{ .Values.trackerWeb.deployment.image.repository }}:{{ .Values.trackerWeb.deployment.image.tag }}"
           imagePullPolicy: {{ .Values.trackerWeb.deployment.image.pullPolicy }}
-          env:
-            - name: VITE_YORKIE_RPC_ADDR
-              value: {{ .Values.trackerWeb.env.yorkieRpcAddr | quote }}
-            - name: VITE_YORKIE_API_KEY
-              value: {{ .Values.trackerWeb.env.yorkieApiKey | quote }}
-            - name: VITE_API_URL
-              value: {{ .Values.trackerWeb.env.apiUrl | quote }}
           ports:
             - containerPort: {{ .Values.trackerWeb.service.targetPort }}
           resources:
