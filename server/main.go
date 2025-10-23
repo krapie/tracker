@@ -49,6 +49,7 @@ func main() {
 	routes.RegisterHealthRoutes(r)
 	routes.RegisterImageRoutes(r)
 	routes.RegisterAuthRoutes(r)
+	routes.RegisterReportRoutes(r)
 
 	// Initialize admin user
 	handlers.InitializeAdminUser()

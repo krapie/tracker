@@ -7,6 +7,8 @@ import { PlaybookDetailPage } from "./pages/PlaybookDetailPage";
 import { HomePage } from "./pages/HomePage";
 import { HealthListPage } from "./pages/HealthListPage";
 import { LoginPage } from "./pages/LoginPage";
+import { ReportListPage } from "./pages/ReportListPage";
+import { ReportDetailPage } from "./pages/ReportDetailPage";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -71,6 +73,12 @@ function AppLayout() {
           >
             Health
           </Link>
+          <Link 
+            to="/reports" 
+            className="text-gh-fg-default dark:text-gh-fg-default-dark hover:text-gh-accent-fg dark:hover:text-gh-accent-fg-dark font-medium transition-colors px-gh-3 py-gh-2 rounded-gh hover:bg-gh-canvas-subtle dark:hover:bg-gh-canvas-subtle-dark"
+          >
+            Reports
+          </Link>
           {user && (
             <div className="relative group">
               <span className="text-gh-fg-muted dark:text-gh-fg-muted-dark text-gh-sm cursor-pointer px-gh-3 py-gh-2 rounded-gh hover:bg-gh-canvas-subtle dark:hover:bg-gh-canvas-subtle-dark transition-colors">
@@ -116,6 +124,8 @@ function App() {
               <Route path="/playbooks" element={<PlaybookListPage />} />
               <Route path="/playbooks/:playbookId" element={<PlaybookDetailPage />} />
               <Route path="/healths" element={<HealthListPage />} />
+              <Route path="/reports" element={<ReportListPage />} />
+              <Route path="/reports/:reportId" element={<ReportDetailPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

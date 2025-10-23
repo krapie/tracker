@@ -31,3 +31,12 @@ export type HealthEndpoint = {
   failCount: number;
   interval: number; // in seconds
 };
+
+export type Report = {
+  id: string;
+  title: string;
+  content: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+};
