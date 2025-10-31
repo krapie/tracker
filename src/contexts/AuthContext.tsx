@@ -58,7 +58,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } else {
         return { success: false, error: data.error || 'Login failed' };
       }
-    } catch (error) {
+    } catch (err) {
+      console.error('Login error', err);
       return { success: false, error: 'Network error' };
     }
   };

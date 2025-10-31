@@ -69,7 +69,11 @@ export function ReportListPage() {
           </div>
         ) : (
           reports.map(report => (
-            <div key={report.id} className="border border-gh-border-default dark:border-gh-border-default-dark rounded-gh-lg bg-gh-canvas-default dark:bg-gh-canvas-default-dark hover:bg-gh-canvas-subtle dark:hover:bg-gh-canvas-subtle-dark transition-colors group">
+            <div
+              key={report.id}
+              className="border border-gh-border-default dark:border-gh-border-default-dark rounded-gh-lg bg-gh-canvas-default dark:bg-gh-canvas-default-dark hover:bg-gh-canvas-subtle dark:hover:bg-gh-canvas-subtle-dark transition-colors group cursor-pointer"
+              onClick={() => navigate(`/reports/${report.id}`)}
+            >
               <div className="flex items-center justify-between px-gh-6 py-gh-4">
                 <div className="flex items-center gap-gh-3">
                   <div className="w-8 h-8 rounded-gh bg-gh-canvas-subtle dark:bg-gh-canvas-subtle-dark border border-gh-border-default dark:border-gh-border-default-dark flex items-center justify-center">
@@ -86,12 +90,7 @@ export function ReportListPage() {
                     </p>
                   </div>
                 </div>
-                <button
-                  className="text-gh-accent-fg dark:text-gh-accent-fg-dark hover:text-gh-accent-emphasis dark:hover:text-gh-accent-emphasis-dark text-gh-sm font-medium transition-colors"
-                  onClick={() => navigate(`/reports/${report.id}`)}
-                >
-                  View →
-                </button>
+                <div className="text-gh-sm text-gh-fg-muted dark:text-gh-fg-muted-dark">&nbsp;</div>
               </div>
             </div>
           ))

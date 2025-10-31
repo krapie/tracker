@@ -1,65 +1,106 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { api } from "../utils/api";
+import type { Issue, Playbook, HealthEndpoint, Report } from "../types/types";
+
+type HomeSummary = {
+  healths: HealthEndpoint[];
+  issues: Issue[];
+  playbooks: Playbook[];
+  reports: Report[];
+};
 
 export function HomePage() {
+  const [data, setData] = useState<HomeSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function fetchAll() {
+      setLoading(true);
+      setError(null);
+      try {
+        const [hRes, iRes, pRes, rRes] = await Promise.all([
+          api.get("/api/health/status"),
+          api.get("/api/issues/"),
+          api.get("/api/playbooks/"),
+          api.get("/api/reports/"),
+        ]);
+
+        // parse JSON responses, but be defensive in case of non-OK
+        const hJson = hRes.ok ? await hRes.json() : [];
+        const iJson = iRes.ok ? await iRes.json() : [];
+        const pJson = pRes.ok ? await pRes.json() : [];
+        const rJson = rRes.ok ? await rRes.json() : [];
+
+        if (!mounted) return;
+
+        setData({
+          healths: Array.isArray(hJson) ? hJson : hJson.endpoints || [],
+          issues: Array.isArray(iJson) ? iJson : iJson.issues || [],
+          playbooks: Array.isArray(pJson) ? pJson : pJson.playbooks || [],
+          reports: Array.isArray(rJson) ? rJson : rJson.reports || [],
+        });
+      } catch (err: unknown) {
+        console.error("Failed to fetch home summary", err);
+        const msg = err instanceof Error ? err.message : String(err);
+        setError(msg || 'Failed to fetch data');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    fetchAll();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
-    <div className="max-w-4xl mx-auto font-gh">
-      {/* Hero Section */}
-      <div className="text-center py-gh-16">
-        <h1 className="text-gh-3xl font-semibold mb-gh-4 text-gh-fg-default dark:text-gh-fg-default-dark flex items-center justify-center gap-gh-3">
+    <div className="max-w-5xl mx-auto font-gh">
+      <div className="text-center py-gh-10">
+        <h1 className="text-gh-3xl font-semibold mb-gh-2 text-gh-fg-default dark:text-gh-fg-default-dark flex items-center justify-center gap-gh-3">
           <span className="text-4xl">🚦</span>
           Tracker
         </h1>
-        <p className="text-gh-lg text-gh-fg-muted dark:text-gh-fg-muted-dark max-w-2xl mx-auto mb-gh-8">
-          A real-time collaborative platform for managing, tracking, and resolving infrastructure issues with team collaboration at its core.
+        <p className="text-gh-lg text-gh-fg-muted dark:text-gh-fg-muted-dark max-w-2xl mx-auto mb-gh-4">
+          A real-time collaborative infrastructure event tracking system
         </p>
-        
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-gh-4 justify-center items-center">
-          <Link
-            to="/issues"
-            className="bg-gh-accent-emphasis dark:bg-gh-accent-emphasis-dark hover:bg-gh-accent-emphasis/90 dark:hover:bg-gh-accent-emphasis-dark/90 text-gh-fg-on-emphasis dark:text-gh-fg-on-emphasis-dark px-gh-6 py-gh-3 rounded-gh font-medium shadow-sm transition-all inline-flex items-center gap-gh-2"
-          >
-            <span>📋</span>
-            View Issues
-          </Link>
-          <Link
-            to="/playbooks"
-            className="border border-gh-border-default dark:border-gh-border-default-dark bg-gh-canvas-default dark:bg-gh-canvas-default-dark hover:bg-gh-canvas-subtle dark:hover:bg-gh-canvas-subtle-dark text-gh-fg-default dark:text-gh-fg-default-dark px-gh-6 py-gh-3 rounded-gh font-medium transition-all inline-flex items-center gap-gh-2"
-          >
-            <span>📚</span>
-            Browse Playbooks
-          </Link>
-        </div>
       </div>
 
-      {/* Feature Cards */}
-      <div className="grid md:grid-cols-3 gap-gh-6 mb-gh-16">
-        <div className="border border-gh-border-default dark:border-gh-border-default-dark rounded-gh-lg p-gh-6 bg-gh-canvas-default dark:bg-gh-canvas-default-dark">
-          <div className="text-2xl mb-gh-4">🔄</div>
-          <h3 className="text-gh-lg font-semibold mb-gh-2 text-gh-fg-default dark:text-gh-fg-default-dark">Real-time Collaboration</h3>
-          <p className="text-gh-fg-muted dark:text-gh-fg-muted-dark text-gh-sm">
-            Work together in real-time with live updates and synchronized editing across your team.
-          </p>
-        </div>
-        
-        <div className="border border-gh-border-default dark:border-gh-border-default-dark rounded-gh-lg p-gh-6 bg-gh-canvas-default dark:bg-gh-canvas-default-dark">
-          <div className="text-2xl mb-gh-4">📊</div>
-          <h3 className="text-gh-lg font-semibold mb-gh-2 text-gh-fg-default dark:text-gh-fg-default-dark">Issue Tracking</h3>
-          <p className="text-gh-fg-muted dark:text-gh-fg-muted-dark text-gh-sm">
-            Track and manage infrastructure issues with detailed logging and status updates.
-          </p>
-        </div>
-        
-        <div className="border border-gh-border-default dark:border-gh-border-default-dark rounded-gh-lg p-gh-6 bg-gh-canvas-default dark:bg-gh-canvas-default-dark">
-          <div className="text-2xl mb-gh-4">📋</div>
-          <h3 className="text-gh-lg font-semibold mb-gh-2 text-gh-fg-default dark:text-gh-fg-default-dark">Playbook Management</h3>
-          <p className="text-gh-fg-muted dark:text-gh-fg-muted-dark text-gh-sm">
-            Create and manage standardized playbooks for consistent incident response procedures.
-          </p>
-        </div>
+      <div className="mb-gh-6">
+        {loading && <div className="text-center text-gh-fg-muted">Loading summary...</div>}
+        {error && <div className="text-center text-gh-danger-fg">Error: {error}</div>}
       </div>
 
-      {/* Quick Navigation */}
+      {data && (
+        <div className="grid md:grid-cols-4 gap-gh-4 mb-gh-8">
+          <div className="p-gh-6 border border-gh-border-default dark:border-gh-border-default-dark rounded-gh bg-gh-canvas-default dark:bg-gh-canvas-default-dark flex flex-col items-center justify-center">
+            <div className="text-gh-sm text-gh-fg-muted mb-gh-2">Health</div>
+            <div className="text-4xl font-bold text-gh-fg-default dark:text-white">{data.healths.length}</div>
+          </div>
+
+          <div className="p-gh-6 border border-gh-border-default dark:border-gh-border-default-dark rounded-gh bg-gh-canvas-default dark:bg-gh-canvas-default-dark flex flex-col items-center justify-center">
+            <div className="text-gh-sm text-gh-fg-muted mb-gh-2">Issues</div>
+            <div className="text-4xl font-bold text-gh-fg-default dark:text-white">{data.issues.length}</div>
+          </div>
+
+          <div className="p-gh-6 border border-gh-border-default dark:border-gh-border-default-dark rounded-gh bg-gh-canvas-default dark:bg-gh-canvas-default-dark flex flex-col items-center justify-center">
+            <div className="text-gh-sm text-gh-fg-muted mb-gh-2">Playbooks</div>
+            <div className="text-4xl font-bold text-gh-fg-default dark:text-white">{data.playbooks.length}</div>
+          </div>
+
+          <div className="p-gh-6 border border-gh-border-default dark:border-gh-border-default-dark rounded-gh bg-gh-canvas-default dark:bg-gh-canvas-default-dark flex flex-col items-center justify-center">
+            <div className="text-gh-sm text-gh-fg-muted mb-gh-2">Reports</div>
+            <div className="text-4xl font-bold text-gh-fg-default dark:text-white">{data.reports.length}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Keep some of the original quick navigation */}
       <div className="border-t border-gh-border-default dark:border-gh-border-default-dark pt-gh-8">
         <h2 className="text-gh-xl font-semibold mb-gh-6 text-gh-fg-default dark:text-gh-fg-default-dark text-center">Quick Navigation</h2>
         <div className="grid sm:grid-cols-3 gap-gh-4">
@@ -73,7 +114,7 @@ export function HomePage() {
               <div className="text-gh-sm text-gh-fg-muted dark:text-gh-fg-muted-dark">Manage and track issues</div>
             </div>
           </Link>
-          
+
           <Link
             to="/playbooks"
             className="flex items-center gap-gh-3 p-gh-4 border border-gh-border-default dark:border-gh-border-default-dark rounded-gh hover:bg-gh-canvas-subtle dark:hover:bg-gh-canvas-subtle-dark transition-colors"
@@ -84,7 +125,7 @@ export function HomePage() {
               <div className="text-gh-sm text-gh-fg-muted dark:text-gh-fg-muted-dark">Standard procedures</div>
             </div>
           </Link>
-          
+
           <Link
             to="/healths"
             className="flex items-center gap-gh-3 p-gh-4 border border-gh-border-default dark:border-gh-border-default-dark rounded-gh hover:bg-gh-canvas-subtle dark:hover:bg-gh-canvas-subtle-dark transition-colors"
