@@ -10,4 +10,5 @@ type HealthEndpoint struct {
 	Threshold int                `bson:"threshold" json:"threshold"` // Number of failures before DOWN
 	FailCount int                `bson:"failCount" json:"failCount"` // Internal: consecutive failures
 	Interval  int                `bson:"interval" json:"interval"`   // Health check interval in seconds
+	Reason    string             `bson:"reason,omitempty" json:"reason,omitempty"`
 }

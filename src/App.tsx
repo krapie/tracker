@@ -71,7 +71,7 @@ function AppLayout() {
             to="/healths" 
             className="text-gh-fg-default dark:text-gh-fg-default-dark hover:text-gh-accent-fg dark:hover:text-gh-accent-fg-dark font-medium transition-colors px-gh-3 py-gh-2 rounded-gh hover:bg-gh-canvas-subtle dark:hover:bg-gh-canvas-subtle-dark"
           >
-            Health
+            Healths
           </Link>
           <Link 
             to="/reports" 

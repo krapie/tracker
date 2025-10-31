@@ -107,3 +107,29 @@ func UpdateHealthEndpoint(c *gin.Context) {
 func HealthzHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
+
+// DeleteHealthEndpoint stops the health checker goroutine and deletes the endpoint from DB
+func DeleteHealthEndpoint(c *gin.Context) {
+	id := c.Param("id")
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid endpoint ID"})
+		return
+	}
+
+	// Stop the running checker if any
+	health.StopHealthChecker(id)
+
+	collection := db.GetHealthCollection()
+	res, err := collection.DeleteOne(context.Background(), bson.M{"_id": objID})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if res.DeletedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Endpoint not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Health endpoint deleted"})
+}

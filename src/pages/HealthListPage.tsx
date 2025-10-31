@@ -48,14 +48,29 @@ export function HealthListPage() {
   }, []);
 
   useEffect(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    const minInterval = getMinInterval(endpoints) * 1000;
-    intervalRef.current = setInterval(fetchEndpoints, minInterval);
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    // Determine polling interval from endpoints (min interval) and start periodic fetch
+    const minIntervalSec = getMinInterval(endpoints);
+    const minIntervalMs = Math.max(5000, Math.min(minIntervalSec * 1000, 300000)); // clamp between 5s and 5min
+
+    // Immediately fetch once and then schedule periodic fetches
+    fetchEndpoints();
+    intervalRef.current = setInterval(fetchEndpoints, minIntervalMs) as unknown as number;
+
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
+    // Re-run when endpoints array changes (by id and interval). Using JSON to avoid unstable deps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [endpoints.map(e => e.interval).join(",")]);
+  }, [JSON.stringify(endpoints.map(e => ({ id: e.id, interval: e.interval })))]);
 
   const handleRegister = async () => {
     if (!name.trim() || !url.trim()) return;
@@ -121,32 +136,44 @@ export function HealthListPage() {
         {/* Register Form */}
         <div className="px-gh-6 py-gh-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-gh-3">
-            <input
-              className="border border-gh-border-default dark:border-gh-border-default-dark px-gh-3 py-gh-2 rounded-gh bg-gh-canvas-default dark:bg-gh-canvas-default-dark text-gh-fg-default dark:text-gh-fg-default-dark focus:border-gh-accent-emphasis dark:focus:border-gh-accent-emphasis-dark outline-none placeholder-gh-fg-muted dark:placeholder-gh-fg-muted-dark"
-              placeholder="Endpoint name"
-              value={name}
-              onChange={e => setName(e.target.value)}
-            />
-            <input
-              className="border border-gh-border-default dark:border-gh-border-default-dark px-gh-3 py-gh-2 rounded-gh bg-gh-canvas-default dark:bg-gh-canvas-default-dark text-gh-fg-default dark:text-gh-fg-default-dark focus:border-gh-accent-emphasis dark:focus:border-gh-accent-emphasis-dark outline-none placeholder-gh-fg-muted dark:placeholder-gh-fg-muted-dark"
-              placeholder="https://example.com/health"
-              value={url}
-              onChange={e => setUrl(e.target.value)}
-            />
-            <input
-              className="border border-gh-border-default dark:border-gh-border-default-dark px-gh-3 py-gh-2 rounded-gh bg-gh-canvas-default dark:bg-gh-canvas-default-dark text-gh-fg-default dark:text-gh-fg-default-dark focus:border-gh-accent-emphasis dark:focus:border-gh-accent-emphasis-dark outline-none placeholder-gh-fg-muted dark:placeholder-gh-fg-muted-dark"
-              placeholder="Threshold"
-              type="number"
-              value={threshold}
-              onChange={e => setThreshold(Number(e.target.value))}
-            />
-            <input
-              className="border border-gh-border-default dark:border-gh-border-default-dark px-gh-3 py-gh-2 rounded-gh bg-gh-canvas-default dark:bg-gh-canvas-default-dark text-gh-fg-default dark:text-gh-fg-default-dark focus:border-gh-accent-emphasis dark:focus:border-gh-accent-emphasis-dark outline-none placeholder-gh-fg-muted dark:placeholder-gh-fg-muted-dark"
-              placeholder="Interval (sec)"
-              type="number"
-              value={interval}
-              onChange={e => setIntervalValue(Number(e.target.value))}
-            />
+            <div className="flex flex-col">
+              <label className="text-gh-sm text-gh-fg-muted dark:text-gh-fg-muted-dark mb-gh-1">Name</label>
+              <input
+                className="border border-gh-border-default dark:border-gh-border-default-dark px-gh-3 py-gh-2 rounded-gh bg-gh-canvas-default dark:bg-gh-canvas-default-dark text-gh-fg-default dark:text-gh-fg-default-dark focus:border-gh-accent-emphasis dark:focus:border-gh-accent-emphasis-dark outline-none placeholder-gh-fg-muted dark:placeholder-gh-fg-muted-dark"
+                placeholder="Endpoint name"
+                value={name}
+                onChange={e => setName(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-gh-sm text-gh-fg-muted dark:text-gh-fg-muted-dark mb-gh-1">URL</label>
+              <input
+                className="border border-gh-border-default dark:border-gh-border-default-dark px-gh-3 py-gh-2 rounded-gh bg-gh-canvas-default dark:bg-gh-canvas-default-dark text-gh-fg-default dark:text-gh-fg-default-dark focus:border-gh-accent-emphasis dark:focus:border-gh-accent-emphasis-dark outline-none placeholder-gh-fg-muted dark:placeholder-gh-fg-muted-dark"
+                placeholder="https://example.com/health"
+                value={url}
+                onChange={e => setUrl(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-gh-sm text-gh-fg-muted dark:text-gh-fg-muted-dark mb-gh-1">Threshold</label>
+              <input
+                className="border border-gh-border-default dark:border-gh-border-default-dark px-gh-3 py-gh-2 rounded-gh bg-gh-canvas-default dark:bg-gh-canvas-default-dark text-gh-fg-default dark:text-gh-fg-default-dark focus:border-gh-accent-emphasis dark:focus:border-gh-accent-emphasis-dark outline-none placeholder-gh-fg-muted dark:placeholder-gh-fg-muted-dark"
+                placeholder="Threshold"
+                type="number"
+                value={threshold}
+                onChange={e => setThreshold(Number(e.target.value))}
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-gh-sm text-gh-fg-muted dark:text-gh-fg-muted-dark mb-gh-1">Interval (sec)</label>
+              <input
+                className="border border-gh-border-default dark:border-gh-border-default-dark px-gh-3 py-gh-2 rounded-gh bg-gh-canvas-default dark:bg-gh-canvas-default-dark text-gh-fg-default dark:text-gh-fg-default-dark focus:border-gh-accent-emphasis dark:focus:border-gh-accent-emphasis-dark outline-none placeholder-gh-fg-muted dark:placeholder-gh-fg-muted-dark"
+                placeholder="Interval (sec)"
+                type="number"
+                value={interval}
+                onChange={e => setIntervalValue(Number(e.target.value))}
+              />
+            </div>
             <button
               className="bg-gh-accent-emphasis dark:bg-gh-accent-emphasis-dark hover:bg-gh-accent-emphasis/90 dark:hover:bg-gh-accent-emphasis-dark/90 text-gh-fg-on-emphasis dark:text-gh-fg-on-emphasis-dark px-gh-4 py-gh-2 rounded-gh font-medium text-gh-sm border border-gh-accent-emphasis dark:border-gh-accent-emphasis-dark transition-colors"
               onClick={handleRegister}
@@ -233,6 +260,11 @@ export function HealthListPage() {
                               <span>Threshold: <span className="font-mono">{ep.threshold ?? 3}</span></span>
                               <span>Interval: <span className="font-mono">{ep.interval ?? 30}s</span></span>
                             </div>
+                            {ep.status === 0 && ep.reason && (
+                              <div className="ml-gh-4 text-gh-sm text-gh-danger-fg dark:text-gh-danger-fg-dark">
+                                Reason: <span className="font-mono">{ep.reason}</span>
+                              </div>
+                            )}
                           </div>
                           <div className="flex items-center gap-gh-3">
                             <span className={`${status.className} px-gh-2 py-gh-1 rounded-gh text-gh-xs font-medium`}>
@@ -243,6 +275,16 @@ export function HealthListPage() {
                               onClick={() => startEdit(ep)}
                             >
                               Edit
+                            </button>
+                            <button
+                              className="text-gh-danger-fg dark:text-gh-danger-fg-dark hover:text-gh-danger-emphasis dark:hover:text-gh-danger-emphasis-dark text-gh-sm opacity-0 group-hover:opacity-100 transition-all ml-gh-2"
+                              onClick={async () => {
+                                if (!confirm(`Delete endpoint '${ep.name}'?`)) return;
+                                await api.delete(`/api/health/endpoints/${ep.id}`);
+                                fetchEndpoints();
+                              }}
+                            >
+                              Delete
                             </button>
                           </div>
                         </div>

@@ -145,32 +145,37 @@ func StartHealthChecker(endpointID, url string, threshold int, interval int) {
 			default:
 				status := -1 // unknown by default
 				client := http.Client{Timeout: 5 * time.Second}
-				resp, err := client.Get(url)
-				if err == nil && resp.StatusCode >= 200 && resp.StatusCode < 400 {
+				resp, clientErr := client.Get(url)
+
+				// compute status and errMsg (reason)
+				var reason string
+				if clientErr == nil && resp != nil && resp.StatusCode >= 200 && resp.StatusCode < 400 {
 					status = 1 // up
 					failCount = 0
 					wasDown = false
+					reason = ""
 				} else {
 					failCount++
-					log.Printf("Health check failed for %s: %v (failCount=%d)", url, err, failCount)
+					log.Printf("Health check failed for %s: %v (failCount=%d)", url, clientErr, failCount)
 					if failCount >= threshold {
 						status = 0 // down
 						if !wasDown {
 							// Fetch endpoint name for notification
-							objID, errObj := primitive.ObjectIDFromHex(endpointID)
+							objIDTmp, errObj := primitive.ObjectIDFromHex(endpointID)
 							endpointName := url
 							if errObj == nil {
 								var ep models.HealthEndpoint
 								coll := db.GetHealthCollection()
-								if err := coll.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&ep); err == nil {
+								if err := coll.FindOne(context.Background(), bson.M{"_id": objIDTmp}).Decode(&ep); err == nil {
 									endpointName = ep.Name
 								}
 							}
+							// build error message to both persist and notify
 							errMsg := ""
-							if err != nil {
-								errMsg = err.Error()
+							if clientErr != nil {
+								errMsg = clientErr.Error()
 							} else if resp != nil {
-								errMsg = "HTTP status " + http.StatusText(resp.StatusCode)
+								errMsg = fmt.Sprintf("HTTP %d %s", resp.StatusCode, http.StatusText(resp.StatusCode))
 							}
 							// Create issue and then send notification with issue URL
 							go func() {
@@ -181,19 +186,32 @@ func StartHealthChecker(endpointID, url string, threshold int, interval int) {
 								}
 								sendDownNotification(endpointName, issueID, errMsg)
 							}()
+							reason = errMsg
 							wasDown = true
+						} else {
+							// already down, try to set a reason if available
+							if clientErr != nil {
+								reason = clientErr.Error()
+							} else if resp != nil {
+								reason = fmt.Sprintf("HTTP %d %s", resp.StatusCode, http.StatusText(resp.StatusCode))
+							}
 						}
 					} else {
-						status = 1 // still up until threshold is reached
+						status = 1 // still considered up until threshold reached
+						reason = ""
 					}
 				}
-				// Convert endpointID string to ObjectID
-				objID, err := primitive.ObjectIDFromHex(endpointID)
-				if err == nil {
+
+				// Convert endpointID string to ObjectID and persist status/failCount/reason
+				objID, oidErr := primitive.ObjectIDFromHex(endpointID)
+				if oidErr == nil {
+					update := bson.M{"status": status, "failCount": failCount}
+					update["reason"] = reason
+
 					db.GetHealthCollection().UpdateByID(
 						context.Background(),
 						objID,
-						bson.M{"$set": bson.M{"status": status, "failCount": failCount}},
+						bson.M{"$set": update},
 					)
 				}
 				time.Sleep(time.Duration(interval) * time.Second)

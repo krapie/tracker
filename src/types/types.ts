@@ -27,6 +27,7 @@ export type HealthEndpoint = {
   name: string;
   url: string;
   status: number; // 1 = up, 0 = down, -1 = unknown
+  reason?: string;
   threshold: number;
   failCount: number;
   interval: number; // in seconds
