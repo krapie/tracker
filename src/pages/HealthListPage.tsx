@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { HealthEndpoint } from "../types/types";
 import { api } from "../utils/api";
 
@@ -27,6 +28,7 @@ export function HealthListPage() {
   const [loading, setLoading] = useState(false);
   const [editState, setEditState] = useState<EditState>({});
   const intervalRef = useRef<number | null>(null);
+  const navigate = useNavigate();
 
   const fetchEndpoints = () => {
     setLoading(true);
@@ -204,7 +206,8 @@ export function HealthListPage() {
                 return (
                   <div
                     key={ep.id}
-                    className="border border-gh-border-default dark:border-gh-border-default-dark rounded-gh-lg bg-gh-canvas-subtle dark:bg-gh-canvas-subtle-dark hover:bg-gh-canvas-inset dark:hover:bg-gh-canvas-inset-dark transition-colors group"
+                    className="border border-gh-border-default dark:border-gh-border-default-dark rounded-gh-lg bg-gh-canvas-subtle dark:bg-gh-canvas-subtle-dark hover:bg-gh-canvas-inset dark:hover:bg-gh-canvas-inset-dark transition-colors group cursor-pointer"
+                    onClick={() => navigate(`/healths/${ep.id}`)}
                   >
                     <div className="px-gh-4 py-gh-3">
                       {edit && edit.editing ? (
@@ -260,11 +263,7 @@ export function HealthListPage() {
                               <span>Threshold: <span className="font-mono">{ep.threshold ?? 3}</span></span>
                               <span>Interval: <span className="font-mono">{ep.interval ?? 30}s</span></span>
                             </div>
-                            {ep.status === 0 && ep.reason && (
-                              <div className="ml-gh-4 text-gh-sm text-gh-danger-fg dark:text-gh-danger-fg-dark">
-                                Reason: <span className="font-mono">{ep.reason}</span>
-                              </div>
-                            )}
+                            {/* reason removed per UI change request */}
                           </div>
                           <div className="flex items-center gap-gh-3">
                             <span className={`${status.className} px-gh-2 py-gh-1 rounded-gh text-gh-xs font-medium`}>
@@ -272,13 +271,14 @@ export function HealthListPage() {
                             </span>
                             <button
                               className="text-gh-accent-fg dark:text-gh-accent-fg-dark hover:text-gh-accent-emphasis dark:hover:text-gh-accent-emphasis-dark text-gh-sm opacity-0 group-hover:opacity-100 transition-all"
-                              onClick={() => startEdit(ep)}
+                              onClick={(e) => { e.stopPropagation(); startEdit(ep); }}
                             >
                               Edit
                             </button>
                             <button
                               className="text-gh-danger-fg dark:text-gh-danger-fg-dark hover:text-gh-danger-emphasis dark:hover:text-gh-danger-emphasis-dark text-gh-sm opacity-0 group-hover:opacity-100 transition-all ml-gh-2"
-                              onClick={async () => {
+                              onClick={async (e) => {
+                                e.stopPropagation();
                                 if (!confirm(`Delete endpoint '${ep.name}'?`)) return;
                                 await api.delete(`/api/health/endpoints/${ep.id}`);
                                 fetchEndpoints();

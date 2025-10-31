@@ -6,6 +6,7 @@ import { PlaybookListPage } from "./pages/PlaybookListPage";
 import { PlaybookDetailPage } from "./pages/PlaybookDetailPage";
 import { HomePage } from "./pages/HomePage";
 import { HealthListPage } from "./pages/HealthListPage";
+import { HealthDetailPage } from "./pages/HealthDetailPage";
 import { LoginPage } from "./pages/LoginPage";
 import { ReportListPage } from "./pages/ReportListPage";
 import { ReportDetailPage } from "./pages/ReportDetailPage";
@@ -124,6 +125,7 @@ function App() {
               <Route path="/playbooks" element={<PlaybookListPage />} />
               <Route path="/playbooks/:playbookId" element={<PlaybookDetailPage />} />
               <Route path="/healths" element={<HealthListPage />} />
+              <Route path="/healths/:endpointId" element={<HealthDetailPage />} />
               <Route path="/reports" element={<ReportListPage />} />
               <Route path="/reports/:reportId" element={<ReportDetailPage />} />
             </Route>

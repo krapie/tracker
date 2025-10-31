@@ -51,6 +51,7 @@ npm run dev
 - [x] Markdown support for event messages
 - [x] Image embedding in event feed (MinIO/S3 integration)
 - [x] Authentication with basic auth and JWT
-- [ ] Report creation and editing UI
+- [x] Report creation and editing UI
+- [ ] Quicklinks to access external resources at once
 - [ ] Tab in issue details for information separation during the event
 - [ ] LLM-powered summary: Link issues to playbooks (Ollama integration)
